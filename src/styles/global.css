@@ -624,3 +624,183 @@ img {
   0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
 }
+
+/* Galaxy background */
+.galaxy-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.galaxy-bg svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Bio section */
+.bio-section {
+  margin: 1rem 0 4rem;
+}
+
+.bio-card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 3rem;
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  padding: 2.5rem;
+  background: rgba(13, 20, 36, 0.5);
+}
+
+.bio-image-wrap {
+  position: relative;
+}
+
+.bio-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 2px;
+  filter: brightness(0.9) contrast(1.05);
+  display: block;
+}
+
+.bio-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+.bio-name {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--star-white);
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.bio-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 1.2rem;
+}
+
+.bio-link {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.bio-link:hover {
+  color: var(--star-white);
+  border-color: var(--star-white);
+}
+
+/* Tags */
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-violet);
+  border: 1px solid rgba(156, 111, 228, 0.3);
+  padding: 0.2em 0.6em;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tag:hover, .active-tag {
+  background: rgba(156, 111, 228, 0.12);
+  color: var(--star-white);
+}
+
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* CTA link */
+.cta-link {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  border: 1px solid rgba(200, 169, 110, 0.3);
+  padding: 0.6em 1.8em;
+  border-radius: 2px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cta-link:hover {
+  background: rgba(200, 169, 110, 0.08);
+  color: var(--star-white);
+}
+
+/* About page */
+.about-hero {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 3.5rem;
+  align-items: center;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.about-photo-wrap {
+  position: relative;
+}
+
+.about-photo {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 2px;
+  filter: brightness(0.9) contrast(1.05);
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.about-photo-ring {
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(200, 169, 110, 0.25);
+  border-radius: 3px;
+  z-index: 0;
+}
+
+@media (max-width: 700px) {
+  .bio-card { grid-template-columns: 1fr; gap: 1.5rem; }
+  .bio-image-wrap { max-width: 160px; }
+  .about-hero { grid-template-columns: 1fr; }
+  .about-photo-wrap { max-width: 200px; }
+}

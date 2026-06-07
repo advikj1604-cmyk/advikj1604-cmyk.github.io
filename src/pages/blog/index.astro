@@ -9,23 +9,35 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))];
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <BaseHead title={`Blog — ${SITE_TITLE}`} description="All posts and observations." />
+    <BaseHead title={`Blog — ${SITE_TITLE}`} description="All posts and observations by Advik Jain." />
   </head>
   <body>
     <Header />
     <main>
       <section class="wide-wrapper" style="padding:4rem 0 6rem;">
-        <div style="margin-bottom:3rem;">
-          <span class="hero-eyebrow">✦ &nbsp; all posts &nbsp; ✦</span>
+        <div style="margin-bottom:2rem;">
+          <span class="hero-eyebrow">✦ all posts ✦</span>
           <h1 style="font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);font-weight:300;color:var(--star-white);margin-top:1rem;">
             Observations
           </h1>
         </div>
+
+        {allTags.length > 0 && (
+          <div class="tag-filter" style="margin-bottom:2.5rem;">
+            <span class="tag active-tag">All</span>
+            {allTags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        )}
+
         <p class="section-label">{posts.length} posts</p>
         <div class="posts-grid">
           {posts.map((post) => (
@@ -35,7 +47,14 @@ const posts = (await getCollection('blog')).sort(
               {post.data.description && (
                 <p class="post-card-desc">{post.data.description}</p>
               )}
-              <span class="post-card-arrow">Read more →</span>
+              {post.data.tags && (
+                <div class="post-tags">
+                  {post.data.tags.map((tag: string) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+              <span class="post-card-arrow">Read more</span>
             </a>
           ))}
         </div>

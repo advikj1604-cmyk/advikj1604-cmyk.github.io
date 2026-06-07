@@ -17,10 +17,95 @@ const posts = (await getCollection('blog')).sort(
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body>
+
+    <!-- Galaxy background SVG -->
+    <div class="galaxy-bg" aria-hidden="true">
+      <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="gal1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#3b1f6e" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#04050a" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="gal2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#04050a" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="planet1g" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#4a3080"/>
+            <stop offset="100%" stop-color="#1a0d35"/>
+          </radialGradient>
+          <radialGradient id="planet2g" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#1e3d5c"/>
+            <stop offset="100%" stop-color="#0a1a2e"/>
+          </radialGradient>
+          <radialGradient id="bh" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#000000" stop-opacity="1"/>
+            <stop offset="60%" stop-color="#000000" stop-opacity="1"/>
+            <stop offset="75%" stop-color="#c8a96e" stop-opacity="0.6"/>
+            <stop offset="90%" stop-color="#e07085" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#04050a" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="blur1">
+            <feGaussianBlur stdDeviation="18"/>
+          </filter>
+          <filter id="blur2">
+            <feGaussianBlur stdDeviation="8"/>
+          </filter>
+          <filter id="blur3">
+            <feGaussianBlur stdDeviation="3"/>
+          </filter>
+        </defs>
+
+        <!-- Galaxy blobs -->
+        <ellipse cx="900" cy="180" rx="320" ry="200" fill="url(#gal1)" filter="url(#blur1)"/>
+        <ellipse cx="200" cy="600" rx="260" ry="180" fill="url(#gal2)" filter="url(#blur1)"/>
+
+        <!-- Black hole top right -->
+        <circle cx="1050" cy="130" r="55" fill="url(#bh)" filter="url(#blur2)"/>
+        <ellipse cx="1050" cy="130" rx="90" ry="14" fill="none" stroke="#c8a96e" stroke-width="1.5" stroke-opacity="0.25" filter="url(#blur3)"/>
+        <ellipse cx="1050" cy="130" rx="110" ry="20" fill="none" stroke="#e07085" stroke-width="0.8" stroke-opacity="0.15" filter="url(#blur3)"/>
+
+        <!-- Planet top left -->
+        <circle cx="130" cy="160" r="38" fill="url(#planet1g)"/>
+        <ellipse cx="130" cy="160" rx="64" ry="10" fill="none" stroke="#9c6fe4" stroke-width="1.5" stroke-opacity="0.4"/>
+        <ellipse cx="130" cy="160" rx="80" ry="14" fill="none" stroke="#9c6fe4" stroke-width="0.8" stroke-opacity="0.2"/>
+
+        <!-- Small distant planet -->
+        <circle cx="980" cy="620" r="18" fill="url(#planet2g)"/>
+
+        <!-- Stars -->
+        <circle cx="60" cy="80" r="1.2" fill="white" fill-opacity="0.8"/>
+        <circle cx="200" cy="40" r="0.8" fill="white" fill-opacity="0.6"/>
+        <circle cx="340" cy="100" r="1" fill="white" fill-opacity="0.7"/>
+        <circle cx="480" cy="30" r="1.4" fill="#ffe9c0" fill-opacity="0.9"/>
+        <circle cx="600" cy="80" r="0.8" fill="white" fill-opacity="0.5"/>
+        <circle cx="720" cy="50" r="1.1" fill="white" fill-opacity="0.7"/>
+        <circle cx="860" cy="30" r="0.9" fill="white" fill-opacity="0.6"/>
+        <circle cx="1100" cy="60" r="1.3" fill="#c8e0ff" fill-opacity="0.8"/>
+        <circle cx="1160" cy="200" r="0.8" fill="white" fill-opacity="0.5"/>
+        <circle cx="40" cy="300" r="1" fill="white" fill-opacity="0.6"/>
+        <circle cx="300" cy="250" r="0.7" fill="white" fill-opacity="0.5"/>
+        <circle cx="550" cy="200" r="1.2" fill="#ffe9c0" fill-opacity="0.7"/>
+        <circle cx="750" cy="300" r="0.8" fill="white" fill-opacity="0.5"/>
+        <circle cx="1000" cy="280" r="1" fill="white" fill-opacity="0.6"/>
+        <circle cx="1150" cy="400" r="0.9" fill="white" fill-opacity="0.5"/>
+        <circle cx="80" cy="500" r="1.1" fill="white" fill-opacity="0.6"/>
+        <circle cx="400" cy="480" r="0.8" fill="white" fill-opacity="0.4"/>
+        <circle cx="650" cy="520" r="1" fill="white" fill-opacity="0.5"/>
+        <circle cx="850" cy="450" r="1.3" fill="#c8e0ff" fill-opacity="0.7"/>
+        <circle cx="1100" cy="550" r="0.8" fill="white" fill-opacity="0.5"/>
+        <circle cx="180" cy="720" r="1" fill="white" fill-opacity="0.6"/>
+        <circle cx="500" cy="700" r="0.9" fill="white" fill-opacity="0.5"/>
+        <circle cx="780" cy="740" r="1.1" fill="#ffe9c0" fill-opacity="0.7"/>
+      </svg>
+    </div>
+
     <Header />
+
     <main>
+      <!-- Hero -->
       <section class="hero wide-wrapper">
-        <span class="hero-eyebrow fade-up">✦ &nbsp; dispatches from the void &nbsp; ✦</span>
+        <span class="hero-eyebrow fade-up">✦ dispatches from the void ✦</span>
         <h1 class="hero-title fade-up fade-up-delay-1">
           Notes from<br /><em>between the stars</em>
         </h1>
@@ -30,6 +115,24 @@ const posts = (await getCollection('blog')).sort(
         <div class="hero-divider fade-up fade-up-delay-3"></div>
       </section>
 
+      <!-- Bio section -->
+      <section class="bio-section wide-wrapper fade-up fade-up-delay-3">
+        <div class="bio-card">
+          <div class="bio-image-wrap">
+            <img src="/advik-photo.jpeg" alt="Advik Jain at the telescope" class="bio-image" />
+          </div>
+          <div class="bio-text">
+            <span class="bio-label">About the author</span>
+            <h2 class="bio-name">Advik Jain</h2>
+            <p class="bio-desc">
+              Student, stargazer, and backyard observer based in India. I write about the night sky, cosmological ideas, and the history of how we came to understand the universe. No observatory, just a telescope and a lot of clear nights.
+            </p>
+            <a href="/about" class="bio-link">Read more about me</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent posts -->
       <section class="posts-section wide-wrapper">
         <p class="section-label">Recent Observations</p>
         <div class="posts-grid">
@@ -40,17 +143,23 @@ const posts = (await getCollection('blog')).sort(
               {post.data.description && (
                 <p class="post-card-desc">{post.data.description}</p>
               )}
-              <span class="post-card-arrow">Read more →</span>
+              {post.data.tags && (
+                <div class="post-tags">
+                  {post.data.tags.map((tag: string) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+              <span class="post-card-arrow">Read more</span>
             </a>
           ))}
         </div>
         <div style="text-align:center; margin-top:2.5rem;">
-          <a href="/blog" style="font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent-gold); border:1px solid rgba(200,169,110,0.3); padding:0.6em 1.5em; border-radius:2px; text-decoration:none; transition:background 0.2s;">
-            View all posts →
-          </a>
+          <a href="/blog" class="cta-link">View all posts</a>
         </div>
       </section>
     </main>
+
     <Footer />
   </body>
 </html>

@@ -1,44 +1,72 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
 ---
 
-<Layout
-  title="About — Advik Jain"
-  description="About Advik Jain, The Backyard Astrophysicist."
-  pubDate={new Date('2025-01-01')}
-  heroImage="/blog-placeholder-about.jpg"
->
-  <p>
-    Hi, I'm <strong>Advik Jain</strong> — a student, stargazer, and the person behind The Backyard Astrophysicist.
-  </p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={`About — ${SITE_TITLE}`} description="About Advik Jain, the person behind The Backyard Astrophysicist." />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <div class="wide-wrapper" style="padding:4rem 0 6rem;">
 
-  <p>
-    I've been fascinated by the night sky for as long as I can remember. There's something about standing outside, looking up, and realising that the light hitting your eyes left its source millions of years ago — it makes everything feel both enormous and intimate at the same time.
-  </p>
+        <!-- About hero -->
+        <div class="about-hero">
+          <div class="about-photo-wrap">
+            <img src="/advik-photo.jpeg" alt="Advik Jain at the telescope" class="about-photo" />
+            <div class="about-photo-ring"></div>
+          </div>
+          <div class="about-intro">
+            <span class="hero-eyebrow">✦ about ✦</span>
+            <h1 style="font-family:var(--font-display);font-size:clamp(2.2rem,4vw,3.2rem);font-weight:300;color:var(--star-white);margin:0.8rem 0 1rem;">
+              Advik Jain
+            </h1>
+            <p style="color:var(--text-secondary);font-size:1rem;line-height:1.8;">
+              Student, stargazer, and backyard observer based in India. I write about the night sky, cosmological ideas, and the history of how humanity came to understand the universe.
+            </p>
+          </div>
+        </div>
 
-  <h2>Why this blog</h2>
+        <div class="prose" style="margin-top:4rem;">
 
-  <p>
-    I started this as a place to write about the things I was learning — not as an expert, but as someone genuinely curious. Astronomy is full of ideas that are hard to wrap your head around: curved spacetime, quantum uncertainty, the sheer scale of the observable universe. Writing about them helps me understand them better, and hopefully makes them a little more accessible for anyone reading along.
-  </p>
+          <p>
+            I have been fascinated by the night sky for as long as I can remember. There is something about standing outside, looking up, and realising that the light hitting your eyes left its source millions of years ago. It makes everything feel both enormous and intimate at the same time.
+          </p>
 
-  <p>
-    Posts cover everything from what's visible in tonight's sky, to deep dives into cosmological theory, to the history of how we figured any of this out in the first place.
-  </p>
+          <h2>Why this blog</h2>
 
-  <h2>The setup</h2>
+          <p>
+            I started this as a place to write about the things I was learning, not as an expert, but as someone genuinely curious. Astronomy is full of ideas that are hard to wrap your head around: curved spacetime, quantum uncertainty, the sheer scale of the observable universe. Writing about them helps me understand them better, and hopefully makes them a little more accessible for anyone reading along.
+          </p>
 
-  <p>
-    I do most of my observing from my backyard — hence the name. No fancy observatory, just a telescope, a red flashlight, and a lot of patience waiting for clouds to clear.
-  </p>
+          <p>
+            Posts cover everything from what is visible in tonight's sky, to deep dives into cosmological theory, to the history of how we figured any of this out in the first place.
+          </p>
 
-  <h2>Get in touch</h2>
+          <h2>The setup</h2>
 
-  <p>
-    If something here sparked a thought, or you want to talk about space, science, or anything in between — find me wherever you found this blog. I'd love to hear from fellow stargazers.
-  </p>
+          <p>
+            I do most of my observing from my backyard, hence the name. No fancy observatory, just a telescope, a red flashlight, and a lot of patience waiting for clouds to clear.
+          </p>
 
-  <p style="font-style:italic;color:var(--text-secondary);font-family:var(--font-display);font-size:1.15rem;margin-top:2.5rem;">
-    "The cosmos is within us. We are made of star-stuff."<br />— Carl Sagan
-  </p>
-</Layout>
+          <h2>Get in touch</h2>
+
+          <p>
+            If something here sparked a thought, or you want to talk about space, science, or anything in between, find me wherever you found this blog. I would love to hear from fellow stargazers.
+          </p>
+
+          <blockquote>
+            "The cosmos is within us. We are made of star-stuff." — Carl Sagan
+          </blockquote>
+
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
