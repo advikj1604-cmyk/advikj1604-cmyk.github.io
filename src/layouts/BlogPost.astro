@@ -17,56 +17,29 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
   </head>
   <body>
     <Header />
-
     <main>
       <div class="site-wrapper">
-        <a href="/" class="back-link">All Posts</a>
-      </div>
-
-      <article>
-        <!-- Post header -->
-        <div class="site-wrapper">
-          <header class="post-header">
-            <div class="post-meta">
-              <span class="post-meta-date">
-                <FormattedDate date={pubDate} />
+        <a href="/blog" class="back-link">All Posts</a>
+        <header class="post-header">
+          <div class="post-meta">
+            <span class="post-meta-date"><FormattedDate date={pubDate} /></span>
+            {updatedDate && (
+              <span class="post-meta-date" style="opacity:0.6;">
+                Updated: <FormattedDate date={updatedDate} />
               </span>
-              {
-                updatedDate && (
-                  <span class="post-meta-date" style="opacity: 0.6;">
-                    Updated: <FormattedDate date={updatedDate} />
-                  </span>
-                )
-              }
-            </div>
-            <h1 class="post-title">{title}</h1>
-            {description && (
-              <p class="post-description">{description}</p>
             )}
-          </header>
-        </div>
-
-        {
-          heroImage && (
-            <div class="site-wrapper">
-              <img class="post-hero-image" src={heroImage} alt={title} />
-            </div>
-          )
-        }
-
-        <!-- Article body -->
-        <div class="site-wrapper">
-          <div class="prose">
-            <slot />
           </div>
-
-          <hr style="margin: 4rem 0;" />
-
-          <a href="/" class="back-link">← Back to all posts</a>
+          <h1 class="post-title">{title}</h1>
+          {description && <p class="post-description">{description}</p>}
+        </header>
+        {heroImage && <img class="post-hero-image" src={heroImage} alt={title} />}
+        <div class="prose">
+          <slot />
         </div>
-      </article>
+        <hr style="margin:4rem 0;" />
+        <a href="/blog" class="back-link">← Back to all posts</a>
+      </div>
     </main>
-
     <Footer />
   </body>
 </html>
