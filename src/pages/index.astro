@@ -6,19 +6,235 @@ import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog')).sort(
+const allPosts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-).slice(0, 4);
+);
+
+const featured = allPosts[0];
+const recentPosts = allPosts.slice(1, 4);
+
+function readingTime(body: string) {
+  const words = body.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <style>
+      .search-wrap {
+        position: relative;
+        max-width: 340px;
+      }
+      .search-input {
+        width: 100%;
+        background: rgba(13,20,36,0.6);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        padding: 0.55em 1em 0.55em 2.2em;
+        border-radius: 2px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .search-input::placeholder { color: var(--text-muted); }
+      .search-input:focus { border-color: var(--accent-cyan); }
+      .search-icon {
+        position: absolute;
+        left: 0.7em;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        pointer-events: none;
+      }
+      .search-results {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: var(--space-navy);
+        border: 1px solid var(--border-subtle);
+        z-index: 100;
+        max-height: 260px;
+        overflow-y: auto;
+      }
+      .search-results.open { display: block; }
+      .search-result-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        text-decoration: none;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        transition: background 0.15s;
+      }
+      .search-result-item:last-child { border-bottom: none; }
+      .search-result-item:hover { background: var(--nebula-blue); }
+      .search-result-date {
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        color: var(--text-muted);
+        display: block;
+        margin-top: 0.2rem;
+      }
+      .no-results {
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+      /* Featured */
+      .featured-section {
+        margin: 0 0 4rem;
+      }
+      .featured-label {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent-gold);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .featured-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-subtle);
+      }
+      .featured-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border-subtle);
+        background: rgba(13,20,36,0.4);
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.2s;
+      }
+      .featured-card:hover { background: rgba(13,20,36,0.7); }
+      .featured-card:hover .featured-title { color: var(--accent-gold); }
+      .featured-img {
+        width: 100%;
+        height: 100%;
+        min-height: 220px;
+        object-fit: cover;
+        filter: brightness(0.7) saturate(0.8);
+        display: block;
+      }
+      .featured-body {
+        padding: 2rem 2rem 1.8rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      .featured-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .featured-date {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+      }
+      .featured-read-time {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        color: var(--accent-cyan);
+        letter-spacing: 0.05em;
+      }
+      .featured-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 2.5vw, 2rem);
+        font-weight: 300;
+        line-height: 1.15;
+        color: var(--star-white);
+        transition: color 0.2s;
+      }
+      .featured-desc {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        flex: 1;
+      }
+      .featured-arrow {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--accent-gold);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      /* Recent list */
+      .recent-list {
+        display: flex;
+        flex-direction: column;
+      }
+      .recent-item {
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        gap: 1.5rem;
+        align-items: start;
+        padding: 1.4rem 0;
+        border-bottom: 1px solid var(--border-subtle);
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.15s;
+      }
+      .recent-item:first-child { border-top: 1px solid var(--border-subtle); }
+      .recent-item:hover .recent-title { color: var(--accent-gold); }
+      .recent-date-col {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        padding-top: 0.2rem;
+        line-height: 1.6;
+      }
+      .recent-body { display: flex; flex-direction: column; gap: 0.35rem; }
+      .recent-title {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 300;
+        color: var(--star-white);
+        line-height: 1.2;
+        transition: color 0.2s;
+      }
+      .recent-desc {
+        font-size: 0.83rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+      .recent-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.2rem; }
+      .recent-read-time {
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        color: var(--accent-cyan);
+        white-space: nowrap;
+        padding-top: 0.25rem;
+        letter-spacing: 0.05em;
+      }
+      @media (max-width: 700px) {
+        .featured-card { grid-template-columns: 1fr; }
+        .featured-img { min-height: 160px; max-height: 200px; }
+        .recent-item { grid-template-columns: 60px 1fr; }
+        .recent-read-time { display: none; }
+      }
+    </style>
   </head>
   <body>
 
-    <!-- Galaxy background SVG -->
     <div class="galaxy-bg" aria-hidden="true">
       <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
         <defs>
@@ -34,10 +250,6 @@ const posts = (await getCollection('blog')).sort(
             <stop offset="0%" stop-color="#4a3080"/>
             <stop offset="100%" stop-color="#1a0d35"/>
           </radialGradient>
-          <radialGradient id="planet2g" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stop-color="#1e3d5c"/>
-            <stop offset="100%" stop-color="#0a1a2e"/>
-          </radialGradient>
           <radialGradient id="bh" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stop-color="#000000" stop-opacity="1"/>
             <stop offset="60%" stop-color="#000000" stop-opacity="1"/>
@@ -45,57 +257,25 @@ const posts = (await getCollection('blog')).sort(
             <stop offset="90%" stop-color="#e07085" stop-opacity="0.2"/>
             <stop offset="100%" stop-color="#04050a" stop-opacity="0"/>
           </radialGradient>
-          <filter id="blur1">
-            <feGaussianBlur stdDeviation="18"/>
-          </filter>
-          <filter id="blur2">
-            <feGaussianBlur stdDeviation="8"/>
-          </filter>
-          <filter id="blur3">
-            <feGaussianBlur stdDeviation="3"/>
-          </filter>
+          <filter id="blur1"><feGaussianBlur stdDeviation="18"/></filter>
+          <filter id="blur2"><feGaussianBlur stdDeviation="8"/></filter>
+          <filter id="blur3"><feGaussianBlur stdDeviation="3"/></filter>
         </defs>
-
-        <!-- Galaxy blobs -->
         <ellipse cx="900" cy="180" rx="320" ry="200" fill="url(#gal1)" filter="url(#blur1)"/>
         <ellipse cx="200" cy="600" rx="260" ry="180" fill="url(#gal2)" filter="url(#blur1)"/>
-
-        <!-- Black hole top right -->
         <circle cx="1050" cy="130" r="55" fill="url(#bh)" filter="url(#blur2)"/>
         <ellipse cx="1050" cy="130" rx="90" ry="14" fill="none" stroke="#c8a96e" stroke-width="1.5" stroke-opacity="0.25" filter="url(#blur3)"/>
         <ellipse cx="1050" cy="130" rx="110" ry="20" fill="none" stroke="#e07085" stroke-width="0.8" stroke-opacity="0.15" filter="url(#blur3)"/>
-
-        <!-- Planet top left -->
         <circle cx="130" cy="160" r="38" fill="url(#planet1g)"/>
         <ellipse cx="130" cy="160" rx="64" ry="10" fill="none" stroke="#9c6fe4" stroke-width="1.5" stroke-opacity="0.4"/>
         <ellipse cx="130" cy="160" rx="80" ry="14" fill="none" stroke="#9c6fe4" stroke-width="0.8" stroke-opacity="0.2"/>
-
-        <!-- Small distant planet -->
-        <circle cx="980" cy="620" r="18" fill="url(#planet2g)"/>
-
-        <!-- Stars -->
         <circle cx="60" cy="80" r="1.2" fill="white" fill-opacity="0.8"/>
         <circle cx="200" cy="40" r="0.8" fill="white" fill-opacity="0.6"/>
-        <circle cx="340" cy="100" r="1" fill="white" fill-opacity="0.7"/>
         <circle cx="480" cy="30" r="1.4" fill="#ffe9c0" fill-opacity="0.9"/>
-        <circle cx="600" cy="80" r="0.8" fill="white" fill-opacity="0.5"/>
         <circle cx="720" cy="50" r="1.1" fill="white" fill-opacity="0.7"/>
-        <circle cx="860" cy="30" r="0.9" fill="white" fill-opacity="0.6"/>
         <circle cx="1100" cy="60" r="1.3" fill="#c8e0ff" fill-opacity="0.8"/>
-        <circle cx="1160" cy="200" r="0.8" fill="white" fill-opacity="0.5"/>
-        <circle cx="40" cy="300" r="1" fill="white" fill-opacity="0.6"/>
-        <circle cx="300" cy="250" r="0.7" fill="white" fill-opacity="0.5"/>
         <circle cx="550" cy="200" r="1.2" fill="#ffe9c0" fill-opacity="0.7"/>
-        <circle cx="750" cy="300" r="0.8" fill="white" fill-opacity="0.5"/>
-        <circle cx="1000" cy="280" r="1" fill="white" fill-opacity="0.6"/>
-        <circle cx="1150" cy="400" r="0.9" fill="white" fill-opacity="0.5"/>
-        <circle cx="80" cy="500" r="1.1" fill="white" fill-opacity="0.6"/>
-        <circle cx="400" cy="480" r="0.8" fill="white" fill-opacity="0.4"/>
-        <circle cx="650" cy="520" r="1" fill="white" fill-opacity="0.5"/>
         <circle cx="850" cy="450" r="1.3" fill="#c8e0ff" fill-opacity="0.7"/>
-        <circle cx="1100" cy="550" r="0.8" fill="white" fill-opacity="0.5"/>
-        <circle cx="180" cy="720" r="1" fill="white" fill-opacity="0.6"/>
-        <circle cx="500" cy="700" r="0.9" fill="white" fill-opacity="0.5"/>
         <circle cx="780" cy="740" r="1.1" fill="#ffe9c0" fill-opacity="0.7"/>
       </svg>
     </div>
@@ -103,7 +283,7 @@ const posts = (await getCollection('blog')).sort(
     <Header />
 
     <main>
-      <!-- Hero -->
+      <!-- Hero + Search -->
       <section class="hero wide-wrapper">
         <span class="hero-eyebrow fade-up">✦ dispatches from the void ✦</span>
         <h1 class="hero-title fade-up fade-up-delay-1">
@@ -112,44 +292,75 @@ const posts = (await getCollection('blog')).sort(
         <p class="hero-subtitle fade-up fade-up-delay-2">
           A journal of astronomy, cosmology, and the quiet wonder of looking up at the dark.
         </p>
-        <div class="hero-divider fade-up fade-up-delay-3"></div>
+        <div class="fade-up fade-up-delay-3" style="display:flex; flex-direction:column; align-items:center; gap:1.5rem;">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input
+              class="search-input"
+              type="text"
+              id="search-input"
+              placeholder="Search posts..."
+              autocomplete="off"
+            />
+            <div class="search-results" id="search-results"></div>
+          </div>
+          <div class="hero-divider"></div>
+        </div>
       </section>
-	  <section class="intro" align="center">
-		<h2>Introduction</h2>
-		<p>
-			This website explains recent discoveries, breakthroughs, and developments in astronomy and astrophysics.
-		</p>
 
-		<p>
-			It focuses on breaking down complex astrophysical concepts and phenomena into clear and simple explanations 
-			that are easy to understand.
-		</p>
-
-		<p>
-			The purpose of this site is to help readers stay informed about modern space science without requiring advanced background knowledge.
-		</p>
-	  </section>
-
-
-      <!-- Recent posts -->
-      <section class="posts-section wide-wrapper">
-        <p class="section-label">Recent Observations</p>
-        <div class="posts-grid">
-          {posts.map((post) => (
-            <a href={`/blog/${post.slug}/`} class="post-card">
-              <span class="post-date"><FormattedDate date={post.data.pubDate} /></span>
-              <h2 class="post-card-title">{post.data.title}</h2>
-              {post.data.description && (
-                <p class="post-card-desc">{post.data.description}</p>
+      <!-- Featured post -->
+      {featured && (
+        <section class="posts-section wide-wrapper featured-section">
+          <p class="featured-label">Latest dispatch from the void</p>
+          <a href={`/blog/${featured.slug}/`} class="featured-card">
+            {featured.data.heroImage && (
+              <img class="featured-img" src={featured.data.heroImage} alt={featured.data.title} />
+            )}
+            <div class="featured-body">
+              <div class="featured-meta">
+                <span class="featured-date"><FormattedDate date={featured.data.pubDate} /></span>
+                <span class="featured-read-time">{readingTime(featured.body)} min read</span>
+              </div>
+              <h2 class="featured-title">{featured.data.title}</h2>
+              {featured.data.description && (
+                <p class="featured-desc">{featured.data.description}</p>
               )}
-              {post.data.tags && (
+              {featured.data.tags && (
                 <div class="post-tags">
-                  {post.data.tags.map((tag: string) => (
+                  {featured.data.tags.map((tag: string) => (
                     <span class="tag">{tag}</span>
                   ))}
                 </div>
               )}
-              <span class="post-card-arrow">Read more</span>
+              <span class="featured-arrow">Read more</span>
+            </div>
+          </a>
+        </section>
+      )}
+
+      <!-- Recent posts list -->
+      <section class="posts-section wide-wrapper">
+        <p class="section-label">Recent Observations</p>
+        <div class="recent-list">
+          {recentPosts.map((post) => (
+            <a href={`/blog/${post.slug}/`} class="recent-item">
+              <div class="recent-date-col">
+                <FormattedDate date={post.data.pubDate} />
+              </div>
+              <div class="recent-body">
+                <h2 class="recent-title">{post.data.title}</h2>
+                {post.data.description && (
+                  <p class="recent-desc">{post.data.description}</p>
+                )}
+                {post.data.tags && (
+                  <div class="recent-tags">
+                    {post.data.tags.map((tag: string) => (
+                      <span class="tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <span class="recent-read-time">{readingTime(post.body)} min read</span>
             </a>
           ))}
         </div>
@@ -160,5 +371,45 @@ const posts = (await getCollection('blog')).sort(
     </main>
 
     <Footer />
+
+    <script define:vars={{ allPosts: allPosts.map(p => ({
+      title: p.data.title,
+      slug: p.slug,
+      description: p.data.description ?? '',
+      date: p.data.pubDate.toISOString().slice(0,10),
+      tags: p.data.tags ?? [],
+    })) }}>
+      const input = document.getElementById('search-input');
+      const results = document.getElementById('search-results');
+
+      input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        if (!q) { results.classList.remove('open'); results.innerHTML = ''; return; }
+
+        const matches = allPosts.filter(p =>
+          p.title.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.tags.some(t => t.toLowerCase().includes(q))
+        ).slice(0, 6);
+
+        if (matches.length === 0) {
+          results.innerHTML = '<p class="no-results">No posts found.</p>';
+        } else {
+          results.innerHTML = matches.map(p => `
+            <a class="search-result-item" href="/blog/${p.slug}/">
+              ${p.title}
+              <span class="search-result-date">${p.date}</span>
+            </a>
+          `).join('');
+        }
+        results.classList.add('open');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !results.contains(e.target)) {
+          results.classList.remove('open');
+        }
+      });
+    </script>
   </body>
 </html>
