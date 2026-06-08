@@ -2,7 +2,7 @@
 title: 'Dark Matter: The Invisible Majority'
 description: 'About 85 percent of all matter in the universe is something we have never directly detected. Here is what we know, and what we do not.'
 pubDate: 'Mar 30 2026'
-heroImage: 'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=1200'
+heroImage: 'https://images.unsplash.com/photo-1446941611757-91d2c3bd3d45?w=1200&auto=format&fit=crop'
 tags: ['dark matter', 'cosmology', 'unsolved']
 ---
 

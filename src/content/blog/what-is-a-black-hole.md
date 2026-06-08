@@ -2,7 +2,7 @@
 title: 'What Is a Black Hole, Really?'
 description: 'Black holes are not cosmic vacuum cleaners. They are something far stranger and far more interesting.'
 pubDate: 'Jun 01 2026'
-heroImage: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1200'
+heroImage: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1200&auto=format&fit=crop'
 tags: ['black holes', 'gravity', 'explainers']
 ---
 
@@ -28,7 +28,7 @@ At the very centre, general relativity predicts a singularity: a point of infini
 
 ## Supermassive Black Holes
 
-Every large galaxy, including the Milky Way, appears to have a supermassive black hole at its centre. Ours is called **Sagittarius A*** (pronounced "A-star") and weighs about four million times the mass of the Sun. In 2022, the Event Horizon Telescope collaboration released the first direct image of it: a glowing ring of superheated gas surrounding a dark centre.
+Every large galaxy, including the Milky Way, appears to have a supermassive black hole at its centre. Ours is called **Sagittarius A*** and weighs about four million times the mass of the Sun. In 2022, the Event Horizon Telescope collaboration released the first direct image of it: a glowing ring of superheated gas surrounding a dark centre.
 
 How these giants formed is still an open question. They were already enormous when the universe was less than a billion years old. That timeline is difficult to explain with standard formation models, and it is one of the most exciting unsolved problems in astrophysics today.
 

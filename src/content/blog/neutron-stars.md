@@ -2,7 +2,7 @@
 title: 'Neutron Stars: A Teaspoon Weighs a Billion Tons'
 description: 'The densest objects in the universe short of black holes. A city-sized sphere of nuclear matter, spinning hundreds of times per second.'
 pubDate: 'Apr 18 2026'
-heroImage: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1200'
+heroImage: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1200&auto=format&fit=crop'
 tags: ['neutron stars', 'stellar evolution', 'pulsars']
 ---
 

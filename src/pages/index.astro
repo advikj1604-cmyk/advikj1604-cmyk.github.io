@@ -13,9 +13,8 @@ const allPosts = (await getCollection('blog')).sort(
 const featured = allPosts[0];
 const recentPosts = allPosts.slice(1, 4);
 
-
-function readingTime(body: string) {
-  const words = body.trim().split(/\s+/).length;
+function readingTime(body?: string) {
+  const words = (body ?? "").trim().split(/\s+/).length;
   return Math.max(1, Math.ceil(words / 200));
 }
 ---
@@ -312,15 +311,15 @@ function readingTime(body: string) {
       <!-- Featured post -->
       {featured && (
         <section class="posts-section wide-wrapper featured-section">
-          <p class="featured-label" align="center">Latest dispatch from the void</p>
-          <a href={`/blog/${featured.slug}/`} class="featured-card">
+          <p class="featured-label">Latest dispatch from the void</p>
+          <a href={`/blog/${featured.id}/`} class="featured-card">
             {featured.data.heroImage && (
               <img class="featured-img" src={featured.data.heroImage} alt={featured.data.title} />
             )}
             <div class="featured-body">
               <div class="featured-meta">
                 <span class="featured-date"><FormattedDate date={featured.data.pubDate} /></span>
-                <span class="featured-read-time">{readingTime(featured.body)} min read</span>
+                <span class="featured-read-time">{readingTime(featured.body ?? featured.rendered?.html)} min read</span>
               </div>
               <h2 class="featured-title">{featured.data.title}</h2>
               {featured.data.description && (
@@ -361,7 +360,7 @@ function readingTime(body: string) {
                   </div>
                 )}
               </div>
-              <span class="recent-read-time">{readingTime(post.body)} min read</span>
+              <span class="recent-read-time">{readingTime(post.body ?? post.rendered?.html)} min read</span>
             </a>
           ))}
         </div>
