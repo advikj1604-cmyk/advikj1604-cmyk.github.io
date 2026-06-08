@@ -2,7 +2,7 @@
 title: 'The First Photo of a Black Hole'
 description: 'In 2019, humanity saw the unseeable for the first time. Here is how the Event Horizon Telescope pulled it off.'
 pubDate: 'May 05 2026'
-heroImage: '/blog-placeholder-3.jpg'
+heroImage: 'https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=1200'
 tags: ['black holes', 'telescopes', 'history']
 ---
 

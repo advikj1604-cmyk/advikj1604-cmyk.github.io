@@ -2,7 +2,7 @@
 title: 'Supernovae: The Universe Recycling Itself'
 description: 'A star dies. In doing so, it seeds the cosmos with everything needed to build planets, oceans, and people.'
 pubDate: 'May 20 2026'
-heroImage: '/blog-placeholder-2.jpg'
+heroImage: 'https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1200'
 tags: ['supernovae', 'stellar evolution', 'explainers']
 ---
 
