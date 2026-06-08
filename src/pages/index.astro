@@ -312,7 +312,7 @@ function readingTime(body: string) {
       <!-- Featured post -->
       {featured && (
         <section class="posts-section wide-wrapper featured-section">
-          <p class="featured-label">Latest dispatch from the void</p>
+          <p class="featured-label" align="center">Latest dispatch from the void</p>
           <a href={`/blog/${featured.slug}/`} class="featured-card">
             {featured.data.heroImage && (
               <img class="featured-img" src={featured.data.heroImage} alt={featured.data.title} />
