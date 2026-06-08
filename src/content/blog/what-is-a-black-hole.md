@@ -2,7 +2,7 @@
 title: 'What Is a Black Hole, Really?'
 description: 'Black holes are not cosmic vacuum cleaners. They are something far stranger and far more interesting.'
 pubDate: 'Jun 01 2026'
-heroImage: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1200&auto=format&fit=crop'
+heroImage: '/blackhole.png'
 tags: ['black holes', 'gravity', 'explainers']
 ---
 
