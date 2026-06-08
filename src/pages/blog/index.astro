@@ -120,7 +120,7 @@ function readingTime(body: string) {
         <div id="posts-list">
           {posts.map((post) => (
             <a
-              href={`/blog/${post.slug}/`}
+              href={`/blog/${post.id}/`}
               class="post-item"
               data-tags={(post.data.tags ?? []).join(',')}
             >

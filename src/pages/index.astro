@@ -343,7 +343,7 @@ function readingTime(body: string) {
         <p class="section-label">Recent Observations</p>
         <div class="recent-list">
           {recentPosts.map((post) => (
-            <a href={`/blog/${post.slug}/`} class="recent-item">
+            <a href={`/blog/${post.id}/`} class="recent-item">
               <div class="recent-date-col">
                 <FormattedDate date={post.data.pubDate} />
               </div>
