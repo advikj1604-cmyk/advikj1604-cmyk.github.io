@@ -365,7 +365,7 @@ import { SITE_TITLE } from '../consts';
           const temp = weather.current_weather?.temperature ?? 'N/A';
           const windspeed = weather.current_weather?.windspeed ?? 'N/A';
           const precip = weather.daily?.precipitation_probability_max?.[0] ?? 'N/A';
-          const skyQuality = cloudCover < 20 ? 'Clear' : cloudCover < 50 ? 'Partly Cloudy' : cloudCover < 80 ? 'Mostly Cloudy' : 'Overcast';
+          const skyQuality = cloudCover < 20 ? ' Clear' : cloudCover < 50 ? ' Partly Cloudy' : cloudCover < 80 ? ' Mostly Cloudy' : ' Overcast';
           const skyColor = cloudCover < 20 ? 'var(--accent-cyan)' : cloudCover < 50 ? 'var(--accent-gold)' : 'var(--accent-rose)';
 
           // Timezone offset in hours (rough, from lon)
@@ -375,12 +375,12 @@ import { SITE_TITLE } from '../consts';
           document.getElementById('result-coords')!.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}° · UTC${tzOffset >= 0 ? '+' : ''}${tzOffset}`;
 
           document.getElementById('weather-bar')!.innerHTML = `
-            <div class="weather-item"><span class="weather-label">Sky Tonight</span><span class="weather-value" style="color:${skyColor}">${skyQuality}</span></div>
-            <div class="weather-item"><span class="weather-label">Cloud Cover</span><span class="weather-value">${Math.round(cloudCover)}%</span></div>
-            <div class="weather-item"><span class="weather-label">Temperature</span><span class="weather-value">${temp}°C</span></div>
-            <div class="weather-item"><span class="weather-label">Wind</span><span class="weather-value">${windspeed} km/h</span></div>
-            <div class="weather-item"><span class="weather-label">Rain Chance</span><span class="weather-value">${precip}%</span></div>
-            <div class="weather-item"><span class="weather-label">Best Viewing</span><span class="weather-value" style="color:var(--accent-gold)">${cloudCover < 30 ? 'Tonight looks good' : cloudCover < 60 ? 'Partly usable' : 'Poor conditions'}</span></div>
+            <div class="weather-item"><span class="weather-label">Sky Tonight: </span><span class="weather-value" style="color:${skyColor}">${skyQuality}</span></div>
+            <div class="weather-item"><span class="weather-label">Cloud Cover: </span><span class="weather-value" style="color:${skyColor}">${Math.round(cloudCover)}%</span></div>
+            <div class="weather-item"><span class="weather-label">Temperature: </span><span class="weather-value" style="color:${skyColor}">${temp}°C</span></div>
+            <div class="weather-item"><span class="weather-label">Wind: </span><span class="weather-value" style="color:${skyColor}">${windspeed} km/h</span></div>
+            <div class="weather-item"><span class="weather-label">Rain Chance: </span><span class="weather-value" style="color:${skyColor}">${precip}%</span></div>
+            <div class="weather-item"><span class="weather-label">Best Viewing: </span><span class="weather-value" style="color:var(--accent-gold)">${cloudCover < 30 ? 'Tonight looks good' : cloudCover < 60 ? 'Partly usable' : 'Poor conditions'}</span></div>
           `;
 
           document.getElementById('stats-grid')!.innerHTML = `
