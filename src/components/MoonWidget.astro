@@ -1,0 +1,137 @@
+---
+// Moon phase calculated purely in JS - no API needed
+---
+
+<div class="moon-widget" id="moon-widget">
+  <div class="moon-widget-inner">
+    <canvas id="moon-canvas" width="48" height="48"></canvas>
+    <div class="moon-info">
+      <span class="moon-phase-name" id="moon-phase-name">Loading...</span>
+      <span class="moon-detail" id="moon-detail"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .moon-widget {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-subtle);
+    background: rgba(13, 20, 36, 0.6);
+    padding: 0.5rem 1rem 0.5rem 0.7rem;
+    border-radius: 2px;
+    gap: 0.5rem;
+  }
+  .moon-widget-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  #moon-canvas {
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .moon-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .moon-phase-name {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+  }
+  .moon-detail {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<script>
+  function getMoonPhase(date: Date) {
+    // Known new moon reference: Jan 6, 2000
+    const known = new Date(2000, 0, 6, 18, 14, 0);
+    const synodicMonth = 29.530588853;
+    const diff = (date.getTime() - known.getTime()) / (1000 * 60 * 60 * 24);
+    const phase = ((diff % synodicMonth) + synodicMonth) % synodicMonth;
+    return phase;
+  }
+
+  function getPhaseName(phase: number): string {
+    if (phase < 1.85) return 'New Moon';
+    if (phase < 7.38) return 'Waxing Crescent';
+    if (phase < 9.22) return 'First Quarter';
+    if (phase < 14.77) return 'Waxing Gibbous';
+    if (phase < 16.61) return 'Full Moon';
+    if (phase < 22.15) return 'Waning Gibbous';
+    if (phase < 23.99) return 'Last Quarter';
+    if (phase < 29.53) return 'Waning Crescent';
+    return 'New Moon';
+  }
+
+  function drawMoon(canvas: HTMLCanvasElement, phase: number) {
+    const ctx = canvas.getContext('2d')!;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const r = cx - 2;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Dark side background
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#0a0d14';
+    ctx.fill();
+
+    // Calculate illumination
+    const illum = phase / 29.530588853;
+    const angle = illum * Math.PI * 2;
+
+    // Draw lit portion
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+
+    ctx.beginPath();
+    if (illum <= 0.5) {
+      // Waxing: right side lit
+      const xScale = Math.cos(angle * 2);
+      ctx.fillStyle = '#d4c89a';
+      ctx.arc(cx, cy, r, Math.PI / 2, -Math.PI / 2, false);
+      ctx.ellipse(cx, cy, r * Math.abs(xScale), r, 0, Math.PI / 2, -Math.PI / 2, xScale > 0);
+    } else {
+      // Waning: left side lit
+      const xScale = Math.cos((angle - Math.PI) * 2);
+      ctx.fillStyle = '#d4c89a';
+      ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
+      ctx.ellipse(cx, cy, r * Math.abs(xScale), r, 0, -Math.PI / 2, Math.PI / 2, xScale < 0);
+    }
+    ctx.fill();
+    ctx.restore();
+
+    // Outer glow ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(200,169,110,0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  const phase = getMoonPhase(new Date());
+  const name = getPhaseName(phase);
+  const illumination = Math.round(Math.abs(Math.cos((phase / 29.530588853) * Math.PI * 2)) * 100);
+  const daysToFull = phase < 14.77 ? Math.round(14.77 - phase) : Math.round(29.53 - phase + 14.77);
+
+  const canvas = document.getElementById('moon-canvas') as HTMLCanvasElement;
+  const phaseName = document.getElementById('moon-phase-name')!;
+  const detail = document.getElementById('moon-detail')!;
+
+  drawMoon(canvas, phase);
+  phaseName.textContent = name;
+  detail.textContent = `${illumination}% illuminated`;
+</script>

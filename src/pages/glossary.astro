@@ -1,0 +1,214 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+
+const terms = [
+  { slug: 'accretion-disk', term: 'Accretion Disk', definition: 'A rotating disk of gas, dust, and other matter that forms around a massive object such as a black hole or neutron star. Material in the disk spirals inward, heating up and emitting intense radiation as it falls toward the central object.' },
+  { slug: 'black-hole', term: 'Black Hole', definition: 'A region of spacetime where gravity is so intense that nothing, not even light, can escape once it crosses the event horizon. Black holes form when massive stars collapse at the end of their lives, or through other mechanisms in the early universe.' },
+  { slug: 'blueshift', term: 'Blueshift', definition: 'The shift of light toward shorter (bluer) wavelengths that occurs when a light source is moving toward the observer. The opposite of redshift. Used to measure the approach velocity of stars and galaxies.' },
+  { slug: 'cosmic-microwave-background', term: 'Cosmic Microwave Background', definition: 'The faint thermal radiation that fills the universe, left over from about 380,000 years after the Big Bang when the universe cooled enough for atoms to form. It is the oldest light we can observe and carries detailed information about the early universe.' },
+  { slug: 'dark-energy', term: 'Dark Energy', definition: 'A mysterious form of energy that permeates all of space and is thought to be responsible for the accelerating expansion of the universe. It makes up roughly 68 percent of the total energy content of the cosmos, but its nature is entirely unknown.' },
+  { slug: 'dark-matter', term: 'Dark Matter', definition: 'A form of matter that does not interact with the electromagnetic force but does exert gravitational effects. It makes up about 27 percent of the universe by mass-energy content. Its existence is inferred from gravitational effects on visible matter, but it has never been directly detected.' },
+  { slug: 'event-horizon', term: 'Event Horizon', definition: 'The boundary around a black hole beyond which nothing can escape. It is not a physical surface but a point of no return — once crossed, even light cannot escape the gravitational pull. An observer falling through the event horizon would notice nothing special at that moment.' },
+  { slug: 'gravitational-lensing', term: 'Gravitational Lensing', definition: 'The bending of light by gravity, as predicted by Einstein\'s general theory of relativity. Massive objects like galaxies and galaxy clusters can act as cosmic lenses, bending and magnifying the light of objects behind them.' },
+  { slug: 'interstellar-medium', term: 'Interstellar Medium', definition: 'The matter and radiation that exists in the space between star systems in a galaxy. It consists of gas (mostly hydrogen and helium), dust, cosmic rays, and magnetic fields, and is the raw material from which new stars form.' },
+  { slug: 'kilonova', term: 'Kilonova', definition: 'A powerful astronomical explosion that occurs when two neutron stars (or a neutron star and a black hole) merge. Kilonovae are one of the primary sites for the creation of heavy elements like gold, platinum, and uranium.' },
+  { slug: 'light-year', term: 'Light Year', definition: 'The distance light travels in one year in a vacuum, approximately 9.46 trillion kilometres. It is a unit of distance, not time. The nearest star system, Alpha Centauri, is about 4.37 light years away.' },
+  { slug: 'magnetar', term: 'Magnetar', definition: 'A type of neutron star with an extraordinarily powerful magnetic field, trillions of times stronger than Earth\'s. Magnetars occasionally release enormous bursts of energy that can be detected across the galaxy.' },
+  { slug: 'main-sequence', term: 'Main Sequence', definition: 'The stage in a star\'s life during which it fuses hydrogen into helium in its core. The Sun is currently a main-sequence star. Most stars spend the majority of their lives in this phase.' },
+  { slug: 'nebula', term: 'Nebula', definition: 'A cloud of gas and dust in space. Nebulae can be the birthplaces of stars (emission nebulae, reflection nebulae) or the remnants of dead stars (planetary nebulae, supernova remnants). The word comes from the Latin for cloud or mist.' },
+  { slug: 'neutron-star', term: 'Neutron Star', definition: 'An incredibly dense stellar remnant formed when a massive star collapses in a supernova. Neutron stars are typically 20 kilometres in diameter but contain more mass than the Sun. A teaspoon of neutron star material would weigh around a billion tonnes on Earth.' },
+  { slug: 'nuclear-fusion', term: 'Nuclear Fusion', definition: 'The process by which atomic nuclei combine to form a heavier nucleus, releasing enormous amounts of energy. It is the energy source of stars and the process responsible for creating most elements heavier than hydrogen.' },
+  { slug: 'parsec', term: 'Parsec', definition: 'A unit of distance equal to about 3.26 light years, or 30.9 trillion kilometres. It is defined as the distance at which one astronomical unit subtends an angle of one arcsecond. Commonly used in professional astronomy.' },
+  { slug: 'photon-sphere', term: 'Photon Sphere', definition: 'A region of space near a black hole where gravity is strong enough that photons (light particles) can travel in circular orbits. It sits outside the event horizon. The dark region seen in images of black holes — the shadow — is bounded by the photon sphere.' },
+  { slug: 'pulsar', term: 'Pulsar', definition: 'A rapidly rotating neutron star that emits beams of electromagnetic radiation from its poles. As the star rotates, the beam sweeps across Earth like a lighthouse, producing extremely regular pulses. Some pulsars are more accurate timekeepers than atomic clocks.' },
+  { slug: 'quasar', term: 'Quasar', definition: 'An extremely luminous active galactic nucleus powered by a supermassive black hole consuming surrounding matter. Quasars are among the brightest objects in the universe and can be seen from billions of light years away.' },
+  { slug: 'red-giant', term: 'Red Giant', definition: 'A large, luminous star in a late stage of stellar evolution. When a star like our Sun exhausts its hydrogen fuel, it expands into a red giant, potentially engulfing inner planets. The Sun will become a red giant in about five billion years.' },
+  { slug: 'redshift', term: 'Redshift', definition: 'The shift of light toward longer (redder) wavelengths that occurs when a light source is moving away from the observer. Cosmological redshift, caused by the expansion of the universe itself, is used to measure the distances to distant galaxies.' },
+  { slug: 'singularity', term: 'Singularity', definition: 'A point in spacetime where the mathematical quantities used to describe a gravitational field become infinite. At the centre of a black hole, general relativity predicts a singularity, but most physicists believe this signals a breakdown of the theory rather than a real physical infinite.' },
+  { slug: 'spacetime', term: 'Spacetime', definition: 'The four-dimensional framework combining the three dimensions of space with time, as described in Einstein\'s theories of relativity. Gravity is understood as the curvature of spacetime caused by mass and energy.' },
+  { slug: 'supernova', term: 'Supernova', definition: 'A powerful and luminous stellar explosion. When a massive star exhausts its nuclear fuel, the core collapses and the outer layers are expelled in an explosion that can briefly outshine an entire galaxy. Supernovae are responsible for distributing heavy elements throughout the universe.' },
+  { slug: 'tidal-forces', term: 'Tidal Forces', definition: 'Gravitational forces that stretch or compress an object due to the difference in gravitational pull across its extent. Near a black hole, tidal forces become extreme enough to stretch an infalling object into a thin stream — a process called spaghettification.' },
+  { slug: 'white-dwarf', term: 'White Dwarf', definition: 'The dense remnant of a low to medium mass star after it has shed its outer layers. White dwarfs are about the size of Earth but contain nearly the mass of the Sun. They slowly cool over billions of years.' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={`Glossary — ${SITE_TITLE}`} description="Definitions of key astronomy and cosmology terms used across The Backyard Astrophysicist." />
+    <style>
+      .glossary-wrap {
+        padding: 4rem 0 6rem;
+      }
+      .glossary-intro {
+        margin-bottom: 3rem;
+        max-width: 600px;
+      }
+      .glossary-intro h1 {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 300;
+        color: var(--star-white);
+        margin: 1rem 0 1rem;
+      }
+      .glossary-intro p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.8;
+      }
+      .glossary-search-wrap {
+        position: relative;
+        max-width: 400px;
+        margin-bottom: 3rem;
+      }
+      .glossary-search {
+        width: 100%;
+        background: rgba(13,20,36,0.6);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        padding: 0.6em 1em 0.6em 2.2em;
+        border-radius: 2px;
+        outline: none;
+        transition: border-color 0.2s;
+        letter-spacing: 0.05em;
+      }
+      .glossary-search:focus { border-color: var(--accent-cyan); }
+      .glossary-search::placeholder { color: var(--text-muted); }
+      .glossary-search-icon {
+        position: absolute;
+        left: 0.7em;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        pointer-events: none;
+      }
+      .glossary-index {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 2.5rem;
+      }
+      .index-letter {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.2em 0.5em;
+        border: 1px solid transparent;
+        border-radius: 2px;
+        transition: all 0.15s;
+        text-transform: uppercase;
+      }
+      .index-letter:hover {
+        color: var(--accent-gold);
+        border-color: rgba(200,169,110,0.3);
+      }
+      .glossary-list {
+        display: flex;
+        flex-direction: column;
+      }
+      .glossary-term {
+        padding: 1.8rem 0;
+        border-bottom: 1px solid var(--border-subtle);
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 2rem;
+        align-items: start;
+        transition: opacity 0.2s;
+      }
+      .glossary-term.hidden { display: none; }
+      .glossary-term:first-child { border-top: 1px solid var(--border-subtle); }
+      .term-name {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 300;
+        color: var(--accent-gold);
+        line-height: 1.2;
+      }
+      .term-anchor {
+        font-family: var(--font-mono);
+        font-size: 0.58rem;
+        color: var(--text-muted);
+        letter-spacing: 0.08em;
+        display: block;
+        margin-top: 0.3rem;
+      }
+      .term-definition {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        line-height: 1.8;
+      }
+      @media (max-width: 700px) {
+        .glossary-term { grid-template-columns: 1fr; gap: 0.5rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main>
+      <div class="wide-wrapper glossary-wrap">
+        <div class="glossary-intro">
+          <span class="hero-eyebrow">✦ reference ✦</span>
+          <h1>Glossary</h1>
+          <p>Key terms from astronomy and cosmology, defined simply. Terms highlighted in gold throughout the blog link back here.</p>
+        </div>
+
+        <div class="glossary-search-wrap">
+          <span class="glossary-search-icon">⌕</span>
+          <input class="glossary-search" type="text" id="glossary-search" placeholder="Filter terms..." autocomplete="off" />
+        </div>
+
+        <div class="glossary-index" id="glossary-index">
+          {[...new Set(terms.map(t => t.term[0]))].sort().map(letter => (
+            <span class="index-letter" data-letter={letter}>{letter}</span>
+          ))}
+        </div>
+
+        <div class="glossary-list" id="glossary-list">
+          {terms.sort((a,b) => a.term.localeCompare(b.term)).map(({ slug, term, definition }) => (
+            <div class="glossary-term" id={slug} data-term={term.toLowerCase()}>
+              <div>
+                <span class="term-name">{term}</span>
+                <span class="term-anchor">#{slug}</span>
+              </div>
+              <p class="term-definition">{definition}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+    <Footer />
+
+    <script>
+      const search = document.getElementById('glossary-search') as HTMLInputElement;
+      const items = document.querySelectorAll('.glossary-term');
+      const letters = document.querySelectorAll('.index-letter');
+
+      search.addEventListener('input', () => {
+        const q = search.value.toLowerCase();
+        items.forEach(item => {
+          const t = (item as HTMLElement).dataset.term ?? '';
+          item.classList.toggle('hidden', q.length > 0 && !t.includes(q));
+        });
+      });
+
+      letters.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const letter = (btn as HTMLElement).dataset.letter?.toLowerCase() ?? '';
+          search.value = '';
+          items.forEach(item => {
+            const t = (item as HTMLElement).dataset.term ?? '';
+            item.classList.toggle('hidden', !t.startsWith(letter));
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

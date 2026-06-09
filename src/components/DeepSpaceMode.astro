@@ -1,0 +1,320 @@
+---
+---
+
+<button class="dsm-toggle" id="dsm-toggle" title="Toggle Deep Space Mode">
+  <span class="dsm-icon">✦</span>
+  <span class="dsm-label">Deep Space</span>
+</button>
+
+<canvas id="dsm-canvas" class="dsm-canvas"></canvas>
+
+<style>
+  .dsm-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.35em 0.8em;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dsm-toggle:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+  .dsm-toggle.active {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    background: rgba(200,169,110,0.06);
+    box-shadow: 0 0 14px rgba(200,169,110,0.2);
+    animation: pulse-gold 2s infinite;
+  }
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 8px rgba(200,169,110,0.2); }
+    50% { box-shadow: 0 0 20px rgba(200,169,110,0.4); }
+  }
+  .dsm-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .dsm-canvas.active { opacity: 1; }
+</style>
+
+<script>
+  const btn = document.getElementById('dsm-toggle')!;
+  const canvas = document.getElementById('dsm-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+
+  let active = false;
+  let mouseX = -1000;
+  let mouseY = -1000;
+  let animFrame: number;
+
+  // ── Types ────────────────────────────────────────────────────────────────
+  type Star = {
+    x: number; y: number; baseX: number; baseY: number;
+    size: number; opacity: number; twinkle: number; twinkleSpeed: number;
+    color: string; layer: number;
+  };
+
+  type ShootingStar = {
+    x: number; y: number; vx: number; vy: number;
+    length: number; opacity: number; active: boolean; trail: {x:number;y:number}[];
+  };
+
+  type CursorTrail = { x: number; y: number; opacity: number; size: number };
+
+  // ── State ────────────────────────────────────────────────────────────────
+  let stars: Star[] = [];
+  let shootingStars: ShootingStar[] = [];
+  let cursorTrail: CursorTrail[] = [];
+  let frame = 0;
+  let lastShoot = 0;
+
+  const STAR_COLORS = [
+    'rgba(200,220,255,', // blue-white
+    'rgba(255,240,200,', // warm yellow
+    'rgba(255,200,180,', // orange
+    'rgba(180,200,255,', // blue
+    'rgba(255,255,255,', // pure white
+  ];
+
+  function init() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+    shootingStars = [];
+    cursorTrail = [];
+
+    // Layer 1: tiny distant stars (lots)
+    for (let i = 0; i < 200; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        baseX: Math.random() * canvas.width,
+        baseY: Math.random() * canvas.height,
+        size: 0.5 + Math.random() * 0.5,
+        opacity: 0.2 + Math.random() * 0.5,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.005 + Math.random() * 0.015,
+        color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
+        layer: 1,
+      });
+    }
+    // Layer 2: medium stars
+    for (let i = 0; i < 80; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        baseX: Math.random() * canvas.width,
+        baseY: Math.random() * canvas.height,
+        size: 1 + Math.random() * 0.8,
+        opacity: 0.4 + Math.random() * 0.5,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.01 + Math.random() * 0.02,
+        color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
+        layer: 2,
+      });
+    }
+    // Layer 3: bright foreground stars
+    for (let i = 0; i < 25; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        baseX: Math.random() * canvas.width,
+        baseY: Math.random() * canvas.height,
+        size: 1.5 + Math.random() * 1.5,
+        opacity: 0.7 + Math.random() * 0.3,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.015 + Math.random() * 0.03,
+        color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
+        layer: 3,
+      });
+    }
+  }
+
+  function spawnShootingStar() {
+    const edge = Math.random();
+    let x, y, vx, vy;
+    if (edge < 0.5) {
+      // from top
+      x = Math.random() * canvas.width;
+      y = -20;
+      vx = (Math.random() - 0.3) * 8;
+      vy = 4 + Math.random() * 6;
+    } else {
+      // from left
+      x = -20;
+      y = Math.random() * canvas.height * 0.6;
+      vx = 5 + Math.random() * 7;
+      vy = (Math.random() - 0.2) * 5;
+    }
+    shootingStars.push({
+      x, y, vx, vy,
+      length: 80 + Math.random() * 120,
+      opacity: 1,
+      active: true,
+      trail: [],
+    });
+  }
+
+  function drawStar(star: Star, dx: number, dy: number) {
+    // Parallax by layer
+    const speed = star.layer * 0.012;
+    const px = star.baseX + dx * speed * canvas.width * 6;
+    const py = star.baseY + dy * speed * canvas.height * 6;
+
+    star.twinkle += star.twinkleSpeed;
+    const op = star.opacity * (0.6 + 0.4 * Math.sin(star.twinkle));
+
+    // Glow for brighter stars
+    if (star.size > 1.2) {
+      const grd = ctx.createRadialGradient(px, py, 0, px, py, star.size * 3);
+      grd.addColorStop(0, star.color + op * 0.8 + ')');
+      grd.addColorStop(1, star.color + '0)');
+      ctx.beginPath();
+      ctx.arc(px, py, star.size * 3, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.arc(px, py, star.size, 0, Math.PI * 2);
+    ctx.fillStyle = star.color + op + ')';
+    ctx.fill();
+
+    // Cross sparkle for very bright stars
+    if (star.size > 2 && op > 0.8) {
+      ctx.strokeStyle = star.color + (op * 0.4) + ')';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(px - star.size * 2.5, py);
+      ctx.lineTo(px + star.size * 2.5, py);
+      ctx.moveTo(px, py - star.size * 2.5);
+      ctx.lineTo(px, py + star.size * 2.5);
+      ctx.stroke();
+    }
+  }
+
+  function drawShootingStars() {
+    for (const s of shootingStars) {
+      if (!s.active) continue;
+      s.trail.push({ x: s.x, y: s.y });
+      if (s.trail.length > 18) s.trail.shift();
+      s.x += s.vx;
+      s.y += s.vy;
+      s.opacity -= 0.018;
+
+      if (s.opacity <= 0 || s.x > canvas.width + 50 || s.y > canvas.height + 50) {
+        s.active = false;
+        continue;
+      }
+
+      // Draw trail
+      for (let i = 0; i < s.trail.length; i++) {
+        const t = s.trail[i];
+        const frac = i / s.trail.length;
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 0.8 * frac, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,240,${s.opacity * frac * 0.6})`;
+        ctx.fill();
+      }
+      // Draw head
+      const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 4);
+      grd.addColorStop(0, `rgba(255,255,255,${s.opacity})`);
+      grd.addColorStop(1, 'rgba(255,255,200,0)');
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    }
+    shootingStars = shootingStars.filter(s => s.active);
+  }
+
+  function drawCursorTrail() {
+    if (mouseX < 0) return;
+
+    // Add new trail point
+    cursorTrail.push({
+      x: mouseX + (Math.random() - 0.5) * 6,
+      y: mouseY + (Math.random() - 0.5) * 6,
+      opacity: 0.7 + Math.random() * 0.3,
+      size: 0.8 + Math.random() * 1.2,
+    });
+    if (cursorTrail.length > 30) cursorTrail.shift();
+
+    // Draw and fade
+    for (let i = 0; i < cursorTrail.length; i++) {
+      const t = cursorTrail[i];
+      t.opacity -= 0.03;
+      if (t.opacity <= 0) continue;
+      const frac = i / cursorTrail.length;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, t.size * frac, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,169,110,${t.opacity * frac})`;
+      ctx.fill();
+    }
+    cursorTrail = cursorTrail.filter(t => t.opacity > 0);
+
+    // Draw cursor star burst
+    const r = 6;
+    ctx.strokeStyle = `rgba(200,169,110,0.5)`;
+    ctx.lineWidth = 0.8;
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+      ctx.beginPath();
+      ctx.moveTo(mouseX + Math.cos(a) * 2, mouseY + Math.sin(a) * 2);
+      ctx.lineTo(mouseX + Math.cos(a) * r, mouseY + Math.sin(a) * r);
+      ctx.stroke();
+    }
+  }
+
+  function draw() {
+    if (!active) return;
+    frame++;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const dx = (mouseX - cx) / cx;
+    const dy = (mouseY - cy) / cy;
+
+    // Draw stars
+    for (const star of stars) drawStar(star, dx, dy);
+
+    // Shooting stars
+    if (frame - lastShoot > 90 + Math.random() * 120) {
+      spawnShootingStar();
+      lastShoot = frame;
+    }
+    drawShootingStars();
+
+    // Cursor trail
+    drawCursorTrail();
+
+    animFrame = requestAnimationFrame(draw);
+  }
+
+  btn.addEventListener('click', () => {
+    active = !active;
+    btn.classList.toggle('active', active);
+    canvas.classList.toggle('active', active);
+    if (active) {
+      init();
+      animFrame = requestAnimationFrame(draw);
+    } else {
+      cancelAnimationFrame(animFrame);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  });
+
+  window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+  window.addEventListener('resize', () => { if (active) init(); });
+</script>

@@ -1,0 +1,210 @@
+---
+interface Props {
+  type: 'weight' | 'size';
+}
+const { type } = Astro.props;
+---
+
+{type === 'weight' && (
+<div class="cosmic-scale">
+  <div class="cs-header">
+    <span class="cs-label">Cosmic Weight Scale</span>
+    <span class="cs-sub">How much would 1 teaspoon (5ml) weigh on Earth?</span>
+  </div>
+  <div class="cs-slider-wrap">
+    <input type="range" min="0" max="4" step="1" value="0" class="cs-slider" id="weight-slider" />
+    <div class="cs-stops">
+      <span>Earth</span>
+      <span>Sun</span>
+      <span>White Dwarf</span>
+      <span>Neutron Star</span>
+      <span>Black Hole</span>
+    </div>
+  </div>
+  <div class="cs-display" id="weight-display">
+    <div class="cs-object-name" id="weight-object">Earth</div>
+    <div class="cs-value" id="weight-value">5 grams</div>
+    <div class="cs-comparison" id="weight-comparison">About the weight of a teaspoon of sugar</div>
+  </div>
+</div>
+)}
+
+{type === 'size' && (
+<div class="cosmic-scale">
+  <div class="cs-header">
+    <span class="cs-label">Neutron Star Size Comparison</span>
+    <span class="cs-sub">A neutron star is roughly 20km across. Drag to compare.</span>
+  </div>
+  <div class="cs-slider-wrap">
+    <input type="range" min="0" max="4" step="1" value="2" class="cs-slider" id="size-slider" />
+    <div class="cs-stops">
+      <span>Neutron Star</span>
+      <span>Mt. Everest</span>
+      <span>City</span>
+      <span>Country</span>
+      <span>Moon</span>
+    </div>
+  </div>
+  <div class="cs-visual" id="size-visual">
+    <div class="cs-bar-wrap">
+      <div class="cs-bar cs-bar-ns" id="bar-ns">
+        <span>Neutron Star 20km</span>
+      </div>
+      <div class="cs-bar cs-bar-compare" id="bar-compare">
+        <span id="bar-label">City (Mumbai ~70km)</span>
+      </div>
+    </div>
+  </div>
+</div>
+)}
+
+<style>
+  .cosmic-scale {
+    background: rgba(13, 20, 36, 0.7);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--accent-gold);
+    padding: 1.8rem 2rem;
+    margin: 2.5rem 0;
+    border-radius: 2px;
+  }
+  .cs-header {
+    margin-bottom: 1.5rem;
+  }
+  .cs-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .cs-sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .cs-slider-wrap {
+    margin-bottom: 1.5rem;
+  }
+  .cs-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 2px;
+    background: var(--border-subtle);
+    outline: none;
+    border-radius: 1px;
+    margin-bottom: 0.6rem;
+    cursor: pointer;
+  }
+  .cs-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    cursor: pointer;
+    border: 2px solid var(--space-black);
+    box-shadow: 0 0 6px rgba(200,169,110,0.4);
+  }
+  .cs-stops {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+  .cs-display {
+    text-align: center;
+    padding: 1.2rem;
+    background: rgba(4,5,10,0.4);
+    border-radius: 2px;
+  }
+  .cs-object-name {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--accent-gold);
+    margin-bottom: 0.4rem;
+  }
+  .cs-value {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--star-white);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .cs-comparison {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+  /* Size bars */
+  .cs-visual { margin-top: 0.5rem; }
+  .cs-bar-wrap { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cs-bar {
+    height: 32px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--space-black);
+    font-weight: 700;
+    transition: width 0.4s ease;
+    min-width: 80px;
+    white-space: nowrap;
+  }
+  .cs-bar-ns {
+    background: var(--accent-gold);
+    width: 20%;
+  }
+  .cs-bar-compare {
+    background: var(--accent-cyan);
+    width: 60%;
+  }
+</style>
+
+<script>
+  // Weight scale
+  const weightSlider = document.getElementById('weight-slider') as HTMLInputElement;
+  if (weightSlider) {
+    const objects = [
+      { name: 'Earth Rock', value: '5 grams', comparison: 'About the weight of a teaspoon of sugar' },
+      { name: 'The Sun\'s Core', value: '~14 grams', comparison: 'Slightly heavier than a tablespoon of water' },
+      { name: 'White Dwarf', value: '~5 tonnes', comparison: 'About the weight of an African elephant' },
+      { name: 'Neutron Star', value: '~5 billion tonnes', comparison: 'More than all humans who have ever lived, combined' },
+      { name: 'Black Hole Singularity', value: 'Undefined', comparison: 'Our physics breaks down. The density is theoretically infinite.' },
+    ];
+    const nameEl = document.getElementById('weight-object')!;
+    const valueEl = document.getElementById('weight-value')!;
+    const compEl = document.getElementById('weight-comparison')!;
+
+    weightSlider.addEventListener('input', () => {
+      const o = objects[parseInt(weightSlider.value)];
+      nameEl.textContent = o.name;
+      valueEl.textContent = o.value;
+      compEl.textContent = o.comparison;
+    });
+  }
+
+  // Size scale
+  const sizeSlider = document.getElementById('size-slider') as HTMLInputElement;
+  if (sizeSlider) {
+    const comparisons = [
+      { label: 'Neutron Star itself (20km)', width: 20, note: 'Same size — the neutron star' },
+      { label: 'Mt. Everest height (8.8km)', width: 10, note: 'The neutron star is twice the height of Everest' },
+      { label: 'Mumbai, India (~70km wide)', width: 60, note: 'A neutron star would fit comfortably inside a major city' },
+      { label: 'England (~400km long)', width: 95, note: 'A neutron star is 20x smaller than England' },
+      { label: 'The Moon (3,474km)', width: 100, note: 'The Moon is 170x wider than a neutron star' },
+    ];
+    const barCompare = document.getElementById('bar-compare') as HTMLElement;
+    const barLabel = document.getElementById('bar-label')!;
+
+    sizeSlider.addEventListener('input', () => {
+      const c = comparisons[parseInt(sizeSlider.value)];
+      barCompare.style.width = c.width + '%';
+      barLabel.textContent = c.label;
+    });
+  }
+</script>

@@ -1,5 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
+import DeepSpaceMode from './DeepSpaceMode.astro';
 import { SITE_TITLE } from '../consts';
 ---
 
@@ -12,8 +13,25 @@ import { SITE_TITLE } from '../consts';
     <nav class="site-nav">
       <HeaderLink href="/">Home</HeaderLink>
       <HeaderLink href="/blog">Blog</HeaderLink>
+      <HeaderLink href="/tonight">Tonight's Sky</HeaderLink>
+      <HeaderLink href="/glossary">Glossary</HeaderLink>
       <HeaderLink href="/about">About</HeaderLink>
       <HeaderLink href="/contact">Contact</HeaderLink>
     </nav>
+    <div class="header-widgets">
+      <DeepSpaceMode />
+    </div>
   </div>
 </header>
+
+<style>
+  .header-widgets {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  @media (max-width: 900px) {
+    .header-widgets { display: none; }
+  }
+</style>

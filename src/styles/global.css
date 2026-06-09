@@ -804,3 +804,15 @@ img {
   .about-hero { grid-template-columns: 1fr; }
   .about-photo-wrap { max-width: 200px; }
 }
+
+/* Glossary auto-links */
+.glossary-link {
+  color: var(--accent-gold);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(200,169,110,0.5);
+  transition: color 0.2s, border-color 0.2s;
+}
+.glossary-link:hover {
+  color: var(--star-white);
+  border-bottom-color: var(--star-white);
+}
