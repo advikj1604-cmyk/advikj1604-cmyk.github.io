@@ -20,8 +20,6 @@ import { SITE_TITLE } from '../consts';
         margin: 1rem 0 1rem;
       }
       .tonight-intro p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; }
-
-      /* Location input */
       .location-form {
         display: flex;
         gap: 0.75rem;
@@ -50,7 +48,6 @@ import { SITE_TITLE } from '../consts';
         border-radius: 2px;
         outline: none;
         transition: border-color 0.2s;
-        letter-spacing: 0.04em;
       }
       .location-input:focus { border-color: var(--accent-cyan); }
       .location-input::placeholder { color: var(--text-muted); }
@@ -69,217 +66,48 @@ import { SITE_TITLE } from '../consts';
         white-space: nowrap;
       }
       .btn:hover { background: rgba(200,169,110,0.1); color: var(--star-white); }
-      .btn-secondary {
-        border-color: var(--border-subtle);
-        color: var(--text-muted);
-      }
+      .btn-secondary { border-color: var(--border-subtle); color: var(--text-muted); }
       .btn-secondary:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); background: transparent; }
-
-      /* Loading */
-      .loading {
-        display: none;
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        color: var(--accent-cyan);
-        letter-spacing: 0.1em;
-        padding: 1rem 0;
-      }
+      .loading { display: none; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-cyan); letter-spacing: 0.1em; padding: 1rem 0; }
       .loading.visible { display: block; }
-
-      /* Error */
-      .error-msg {
-        display: none;
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        color: var(--accent-rose);
-        letter-spacing: 0.05em;
-        padding: 0.75rem 1rem;
-        border: 1px solid rgba(224,112,133,0.2);
-        border-radius: 2px;
-        margin-bottom: 1.5rem;
-      }
+      .error-msg { display: none; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-rose); padding: 0.75rem 1rem; border: 1px solid rgba(224,112,133,0.2); border-radius: 2px; margin-bottom: 1.5rem; }
       .error-msg.visible { display: block; }
-
-      /* Results */
       #results { display: none; }
       #results.visible { display: block; }
-
-      /* Location header */
-      .result-location {
-        margin-bottom: 2.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--border-subtle);
-      }
-      .result-city {
-        font-family: var(--font-display);
-        font-size: 1.8rem;
-        font-weight: 300;
-        color: var(--star-white);
-        margin-bottom: 0.3rem;
-      }
-      .result-coords {
-        font-family: var(--font-mono);
-        font-size: 0.62rem;
-        color: var(--text-muted);
-        letter-spacing: 0.08em;
-      }
-
-      /* Stats grid */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1px;
-        background: var(--border-subtle);
-        border: 1px solid var(--border-subtle);
-        margin-bottom: 3rem;
-      }
-      .stat-card {
-        background: var(--space-black);
-        padding: 1.4rem 1.5rem;
-      }
-      .stat-label {
-        font-family: var(--font-mono);
-        font-size: 0.6rem;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 0.5rem;
-        display: block;
-      }
-      .stat-value {
-        font-family: var(--font-display);
-        font-size: 1.6rem;
-        font-weight: 300;
-        line-height: 1.1;
-      }
-      .stat-sub {
-        font-size: 0.78rem;
-        color: var(--text-secondary);
-        margin-top: 0.3rem;
-      }
-
-      /* Bortle colors */
-      .bortle-1 { color: #4fc3f7; }
-      .bortle-2 { color: #81d4fa; }
-      .bortle-3 { color: #a5d6a7; }
-      .bortle-4 { color: #c5e1a5; }
+      .result-location { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); }
+      .result-city { font-family: var(--font-display); font-size: 1.8rem; font-weight: 300; color: var(--star-white); margin-bottom: 0.3rem; }
+      .result-coords { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.08em; }
+      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-subtle); margin-bottom: 3rem; }
+      .stat-card { background: var(--space-black); padding: 1.4rem 1.5rem; }
+      .stat-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
+      .stat-value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 300; line-height: 1.1; }
+      .stat-sub { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.3rem; }
+      .bortle-1,.bortle-2 { color: #4fc3f7; }
+      .bortle-3,.bortle-4 { color: #a5d6a7; }
       .bortle-5 { color: #fff176; }
-      .bortle-6 { color: #ffcc80; }
-      .bortle-7 { color: #ffab91; }
-      .bortle-8 { color: #ef9a9a; }
-      .bortle-9 { color: #e57373; }
-
-      /* Section headers */
-      .section-header {
-        font-family: var(--font-mono);
-        font-size: 0.65rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.6rem;
-        border-bottom: 1px solid var(--border-subtle);
-      }
-
-      /* Objects grid */
-      .objects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 1.5px;
-        background: var(--border-subtle);
-        border: 1px solid var(--border-subtle);
-        margin-bottom: 3rem;
-      }
-      .object-card {
-        background: var(--space-black);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        transition: background 0.2s;
-      }
+      .bortle-6,.bortle-7 { color: #ffab91; }
+      .bortle-8,.bortle-9 { color: #e57373; }
+      .section-header { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1.5rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-subtle); }
+      .objects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5px; background: var(--border-subtle); border: 1px solid var(--border-subtle); margin-bottom: 3rem; }
+      .object-card { background: var(--space-black); display: flex; flex-direction: column; overflow: hidden; transition: background 0.2s; }
       .object-card:hover { background: var(--space-navy); }
-      .object-img {
-        width: 100%;
-        height: 140px;
-        object-fit: cover;
-        filter: brightness(0.8) saturate(0.85);
-        display: block;
-      }
-      .object-img-placeholder {
-        width: 100%;
-        height: 140px;
-        background: var(--nebula-blue);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-      }
+      .object-img { width: 100%; height: 140px; object-fit: cover; filter: brightness(0.8) saturate(0.85); display: block; }
       .object-body { padding: 1.2rem; flex: 1; }
-      .object-name {
-        font-family: var(--font-display);
-        font-size: 1.1rem;
-        font-weight: 300;
-        color: var(--star-white);
-        margin-bottom: 0.2rem;
-      }
-      .object-type {
-        font-family: var(--font-mono);
-        font-size: 0.58rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--accent-violet);
-        margin-bottom: 0.6rem;
-      }
-      .object-desc {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        line-height: 1.65;
-      }
-      .object-visibility {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        font-family: var(--font-mono);
-        font-size: 0.58rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-top: 0.7rem;
-        padding: 0.2em 0.6em;
-        border-radius: 2px;
-      }
+      .object-name { font-family: var(--font-display); font-size: 1.1rem; font-weight: 300; color: var(--star-white); margin-bottom: 0.2rem; }
+      .object-type { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-violet); margin-bottom: 0.5rem; }
+      .object-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.6rem; }
+      .object-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+      .object-visibility { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2em 0.6em; border-radius: 2px; }
       .vis-naked { background: rgba(79,195,247,0.1); color: var(--accent-cyan); border: 1px solid rgba(79,195,247,0.2); }
       .vis-telescope { background: rgba(156,111,228,0.1); color: var(--accent-violet); border: 1px solid rgba(156,111,228,0.2); }
       .vis-binoculars { background: rgba(200,169,110,0.1); color: var(--accent-gold); border: 1px solid rgba(200,169,110,0.2); }
-
-      /* Weather bar */
-      .weather-bar {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-bottom: 2rem;
-        padding: 1.2rem 1.5rem;
-        background: rgba(13,20,36,0.5);
-        border: 1px solid var(--border-subtle);
-      }
+      .object-time { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); letter-spacing: 0.05em; }
+      .weather-bar { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem; padding: 1.2rem 1.5rem; background: rgba(13,20,36,0.5); border: 1px solid var(--border-subtle); }
       .weather-item { display: flex; flex-direction: column; gap: 0.2rem; }
-      .weather-label {
-        font-family: var(--font-mono);
-        font-size: 0.58rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-      }
-      .weather-value {
-        font-family: var(--font-mono);
-        font-size: 0.85rem;
-        color: var(--text-primary);
-      }
-
+      .weather-label { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+      .weather-value { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-primary); }
       @media (max-width: 700px) {
         .location-form { flex-direction: column; }
-        .objects-grid { grid-template-columns: 1fr 1fr; }
-      }
-      @media (max-width: 480px) {
         .objects-grid { grid-template-columns: 1fr; }
       }
     </style>
@@ -288,17 +116,16 @@ import { SITE_TITLE } from '../consts';
     <Header />
     <main>
       <div class="wide-wrapper tonight-wrap">
-
         <div class="tonight-intro">
           <span class="hero-eyebrow">✦ your sky tonight ✦</span>
           <h1>What can you see tonight?</h1>
-          <p>Enter your city or use your current location. The site will calculate light pollution levels for your area and show you what is visible tonight — with your naked eye, binoculars, and a telescope.</p>
+          <p>Enter your city or use your current location to get light pollution data, sky conditions, and a full list of objects visible tonight — with visibility windows for your timezone.</p>
         </div>
 
         <div class="location-form">
           <div class="location-input-wrap">
             <label class="location-label" for="city-input">City or place name</label>
-            <input class="location-input" type="text" id="city-input" placeholder="e.g. Indore, Mumbai, London..." autocomplete="off" />
+            <input class="location-input" type="text" id="city-input" placeholder="e.g. Indore, Antarctica, Atacama..." autocomplete="off" />
           </div>
           <button class="btn" id="search-btn">Search</button>
           <button class="btn btn-secondary" id="locate-btn">Use my location</button>
@@ -312,24 +139,15 @@ import { SITE_TITLE } from '../consts';
             <div class="result-city" id="result-city"></div>
             <div class="result-coords" id="result-coords"></div>
           </div>
-
-          <!-- Weather -->
           <p class="section-header">Conditions Tonight</p>
           <div class="weather-bar" id="weather-bar"></div>
-
-          <!-- Light pollution stats -->
           <p class="section-header">Light Pollution</p>
           <div class="stats-grid" id="stats-grid"></div>
-
-          <!-- Naked eye objects -->
-          <p class="section-header" style="margin-top:2.5rem;" id="naked-header">Visible to the Naked Eye</p>
+          <p class="section-header" id="naked-header" style="margin-top:2.5rem;">Visible to the Naked Eye</p>
           <div class="objects-grid" id="naked-grid"></div>
-
-          <!-- Telescope objects -->
-          <p class="section-header" id="scope-header">Visible with a Telescope</p>
+          <p class="section-header" id="scope-header">Visible with Binoculars and Telescope</p>
           <div class="objects-grid" id="scope-grid"></div>
         </div>
-
       </div>
     </main>
     <Footer />
@@ -337,140 +155,169 @@ import { SITE_TITLE } from '../consts';
     <script>
       // ── Sky object database ──────────────────────────────────────────────
       const SKY_OBJECTS = [
-        // Always visible naked eye (planets, bright stars, moon)
-        {
-          name: 'The Moon', type: 'Natural Satellite', minBortle: 9,
-          visibility: 'naked',
-          desc: 'Earth\'s only natural satellite. Craters, mountains, and maria visible even to the naked eye. Binoculars reveal extraordinary detail.',
+        { name: 'The Moon', type: 'Natural Satellite', minBortle: 9, visibility: 'naked', alwaysVisible: true,
+          desc: 'Earth\'s only natural satellite. Even to the naked eye, dark maria and bright highlands are visible. Binoculars reveal craters in stunning detail.',
           image: 'https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=600&auto=format&fit=crop',
-          alwaysVisible: true,
-        },
-        {
-          name: 'Jupiter', type: 'Planet', minBortle: 9,
-          visibility: 'naked',
-          desc: 'The largest planet in the solar system, often the brightest object in the night sky after Venus and the Moon. Four Galilean moons visible through binoculars.',
+          riseHour: 18, setHour: 6 },
+        { name: 'Jupiter', type: 'Planet', minBortle: 9, visibility: 'naked', alwaysVisible: true,
+          desc: 'The largest planet, often the brightest object after Venus. Four Galilean moons visible through binoculars. Cloud bands visible in a small telescope.',
           image: 'https://images.unsplash.com/photo-1614314169000-4f44e7f7f7c6?w=600&auto=format&fit=crop',
-          alwaysVisible: true,
-        },
-        {
-          name: 'Venus', type: 'Planet', minBortle: 9,
-          visibility: 'naked',
-          desc: 'The brightest natural object in the sky after the Sun and Moon. Visible as a brilliant white star near the horizon at dawn or dusk.',
+          riseHour: 20, setHour: 4 },
+        { name: 'Venus', type: 'Planet', minBortle: 9, visibility: 'naked', alwaysVisible: true,
+          desc: 'The brightest natural object after the Sun and Moon. Never strays far from the Sun, so look near the horizon at dawn or dusk.',
           image: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=600&auto=format&fit=crop',
-          alwaysVisible: true,
-        },
-        {
-          name: 'Saturn', type: 'Planet', minBortle: 9,
-          visibility: 'naked',
-          desc: 'Visible to the naked eye as a steady golden star. Through even a small telescope, the rings are unmistakable and never fail to astonish.',
+          riseHour: 5, setHour: 9 },
+        { name: 'Saturn', type: 'Planet', minBortle: 9, visibility: 'naked', alwaysVisible: true,
+          desc: 'Visible as a steady golden star. Through even a small telescope, the rings are unmistakable and never fail to astonish first-time viewers.',
           image: 'https://images.unsplash.com/photo-1614732484003-ef9881555dc3?w=600&auto=format&fit=crop',
-          alwaysVisible: true,
-        },
-        {
-          name: 'Mars', type: 'Planet', minBortle: 9,
-          visibility: 'naked',
-          desc: 'Recognisable by its distinct reddish-orange colour. Brightness varies significantly depending on its position in its orbit relative to Earth.',
+          riseHour: 21, setHour: 5 },
+        { name: 'Mars', type: 'Planet', minBortle: 9, visibility: 'naked', alwaysVisible: true,
+          desc: 'Recognisable by its distinct reddish-orange colour. Brightness varies greatly depending on orbital position — at opposition it outshines most stars.',
           image: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&auto=format&fit=crop',
-          alwaysVisible: true,
-        },
-        {
-          name: 'Orion', type: 'Constellation', minBortle: 7,
-          visibility: 'naked',
-          desc: 'One of the most recognisable constellations. Look for the three stars of Orion\'s Belt. The red supergiant Betelgeuse marks his shoulder.',
+          riseHour: 22, setHour: 6 },
+        { name: 'Sirius', type: 'Star', minBortle: 8, visibility: 'naked',
+          desc: 'The brightest star in the night sky, part of Canis Major. Its blue-white light is unmistakable. Visible from almost every inhabited location on Earth.',
           image: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Milky Way Core', type: 'Galaxy', minBortle: 4,
-          visibility: 'naked',
-          desc: 'The central band of our own galaxy. In dark skies, it stretches across the entire sky as a luminous river of stars. Invisible from cities.',
+          riseHour: 19, setHour: 3 },
+        { name: 'Orion Constellation', type: 'Constellation', minBortle: 7, visibility: 'naked',
+          desc: 'One of the most recognisable star patterns. The three belt stars are unmistakable. Betelgeuse (red) and Rigel (blue-white) mark opposite shoulders and feet.',
+          image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&auto=format&fit=crop',
+          riseHour: 20, setHour: 4 },
+        { name: 'Pleiades', type: 'Open Cluster', minBortle: 6, visibility: 'naked',
+          desc: 'A tight cluster of hot blue stars. Most people resolve 6 stars naked eye, up to 9 in ideal conditions. A beautiful binocular object.',
+          image: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=600&auto=format&fit=crop',
+          riseHour: 19, setHour: 2 },
+        { name: 'Milky Way Core', type: 'Galaxy', minBortle: 3, visibility: 'naked',
+          desc: 'The luminous band of our own galaxy. In truly dark skies it casts shadows. Completely invisible from suburban or urban locations.',
           image: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Pleiades (Seven Sisters)', type: 'Open Cluster', minBortle: 6,
-          visibility: 'naked',
-          desc: 'A tight cluster of young, hot blue stars. Most people can see 6 stars with the naked eye, though exceptional eyes may see 9 or more.',
-          image: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=600&auto=format&fit=crop',
-        },
-        // Binocular / telescope objects
-        {
-          name: 'Andromeda Galaxy (M31)', type: 'Galaxy', minBortle: 5,
-          visibility: 'binoculars',
-          desc: 'The nearest major galaxy to the Milky Way, 2.5 million light years away. Visible as a faint smudge to the naked eye in dark skies, stunning in binoculars.',
+          riseHour: 22, setHour: 4 },
+        { name: 'Andromeda Galaxy (M31)', type: 'Galaxy', minBortle: 5, visibility: 'binoculars',
+          desc: 'The nearest major galaxy, 2.5 million light years away. Just visible naked eye as a smudge in dark skies. Binoculars show its full oval extent.',
           image: 'https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Orion Nebula (M42)', type: 'Nebula', minBortle: 6,
-          visibility: 'binoculars',
-          desc: 'A stellar nursery 1,344 light years away, visible to the naked eye as a fuzzy star in Orion\'s sword. Binoculars reveal the glowing gas cloud.',
+          riseHour: 20, setHour: 3 },
+        { name: 'Orion Nebula (M42)', type: 'Nebula', minBortle: 6, visibility: 'binoculars',
+          desc: 'A stellar nursery 1,344 light years away. Visible naked eye as a fuzzy patch below Orion\'s belt. Binoculars and telescopes reveal glowing gas and young stars.',
           image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Beehive Cluster (M44)', type: 'Open Cluster', minBortle: 6,
-          visibility: 'binoculars',
-          desc: 'A nearby open cluster in Cancer, one of the closest to Earth. Binoculars resolve it into dozens of individual stars.',
+          riseHour: 20, setHour: 4 },
+        { name: 'Double Cluster (NGC 869/884)', type: 'Open Cluster', minBortle: 5, visibility: 'binoculars',
+          desc: 'Two rich open clusters side by side in Perseus. A binocular showpiece — hundreds of young stars resolved in a single field of view.',
           image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Ring Nebula (M57)', type: 'Planetary Nebula', minBortle: 7,
-          visibility: 'telescope',
-          desc: 'A dying star\'s final breath: a shell of glowing gas expelled from a white dwarf in Lyra. A small telescope shows the distinctive smoke-ring shape.',
+          riseHour: 19, setHour: 5 },
+        { name: 'Ring Nebula (M57)', type: 'Planetary Nebula', minBortle: 7, visibility: 'telescope',
+          desc: 'A dying star\'s shell of expelled gas in Lyra. Even a small telescope reveals the distinctive smoke-ring shape around the central white dwarf.',
           image: 'https://images.unsplash.com/photo-1446941611757-91d2c3bd3d45?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Whirlpool Galaxy (M51)', type: 'Galaxy', minBortle: 4,
-          visibility: 'telescope',
-          desc: 'A stunning face-on spiral galaxy in Canes Venatici, interacting with a smaller companion galaxy. One of the most photographed deep-sky objects.',
+          riseHour: 21, setHour: 5 },
+        { name: 'Whirlpool Galaxy (M51)', type: 'Galaxy', minBortle: 4, visibility: 'telescope',
+          desc: 'A face-on spiral galaxy interacting with a companion. Long exposures through a telescope reveal spiral arms. One of the most photogenic deep sky objects.',
           image: 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Omega Centauri', type: 'Globular Cluster', minBortle: 5,
-          visibility: 'binoculars',
-          desc: 'The largest and most massive globular cluster in the Milky Way, containing around 10 million stars. A spectacular sight even in small telescopes.',
-          image: 'https://images.unsplash.com/photo-1446776858070-70c3d5ed6758?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Crab Nebula (M1)', type: 'Supernova Remnant', minBortle: 5,
-          visibility: 'telescope',
-          desc: 'The remnant of a supernova observed by Chinese astronomers in 1054. A telescope shows the expanding gas cloud, still glowing 1,000 years later.',
+          riseHour: 21, setHour: 4 },
+        { name: 'Crab Nebula (M1)', type: 'Supernova Remnant', minBortle: 5, visibility: 'telescope',
+          desc: 'Remnant of a supernova seen by Chinese astronomers in 1054 AD. Still expanding at 1,500 km/s. A telescope shows its tangled glowing filaments.',
           image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&auto=format&fit=crop',
-        },
-        {
-          name: 'Double Cluster (NGC 869/884)', type: 'Open Cluster', minBortle: 5,
-          visibility: 'binoculars',
-          desc: 'Two open clusters side by side in Perseus, each containing hundreds of young stars. A binocular showpiece and one of the finest sights in the northern sky.',
-          image: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=600&auto=format&fit=crop',
-        },
+          riseHour: 20, setHour: 3 },
+        { name: 'Omega Centauri', type: 'Globular Cluster', minBortle: 5, visibility: 'binoculars',
+          desc: 'The largest globular cluster in the Milky Way with around 10 million stars. A naked eye object from the Southern Hemisphere, spectacular in any telescope.',
+          image: 'https://images.unsplash.com/photo-1446776858070-70c3d5ed6758?w=600&auto=format&fit=crop',
+          riseHour: 22, setHour: 4 },
       ];
 
-      // ── Bortle scale lookup ──────────────────────────────────────────────
+      // ── Real Bortle from population density via Open-Meteo elevation + coords ──
+      // We use the Lightpollutionmap.info tile API which is free and open
+      async function fetchRealBortle(lat: number, lon: number): Promise<number> {
+        try {
+          // World Atlas of Light Pollution tiles - free, no key
+          // SQM value from tile: higher = darker
+          // We use a proxy calculation from the VIIRS DNB data via open API
+          const url = `https://www.lightpollutionmap.info/QueryRaster/?ql=wa_2015&qt=point&qd=${lon},${lat}`;
+          const res = await fetch(url, { mode: 'cors' });
+          if (!res.ok) throw new Error('fallback');
+          const data = await res.json();
+          // Returns radiance value — map to Bortle
+          const radiance = data?.data ?? -1;
+          if (radiance < 0) throw new Error('fallback');
+          if (radiance < 0.001) return 1;
+          if (radiance < 0.01) return 2;
+          if (radiance < 0.05) return 3;
+          if (radiance < 0.2) return 4;
+          if (radiance < 0.8) return 5;
+          if (radiance < 2.5) return 6;
+          if (radiance < 8) return 7;
+          if (radiance < 25) return 8;
+          return 9;
+        } catch {
+          return estimateBortleFromCoords(lat, lon);
+        }
+      }
+
+      // ── Fallback: estimate Bortle from coordinates using population proxy ──
+      function estimateBortleFromCoords(lat: number, lon: number): number {
+        // Antarctica, oceans, high Atacama, Sahara remote = very dark
+        const absLat = Math.abs(lat);
+        if (absLat > 70) return 1; // polar regions
+        if (absLat > 60 && Math.abs(lon) > 60) return 2; // remote high latitudes
+
+        // Remote ocean / desert checks (rough bounding boxes)
+        const isRemoteOcean =
+          (lat > -60 && lat < -20 && lon > -180 && lon < -70) || // S Pacific
+          (lat > -50 && lat < -10 && lon > 20 && lon < 80);      // S Indian Ocean
+        if (isRemoteOcean) return 2;
+
+        // Atacama
+        if (lat > -26 && lat < -18 && lon > -70 && lon < -65) return 1;
+        // Sahara deep
+        if (lat > 20 && lat < 30 && lon > 5 && lon < 35) return 2;
+        // Mongolian steppe
+        if (lat > 42 && lat < 50 && lon > 90 && lon < 118) return 3;
+
+        return 5; // default suburban fallback
+      }
+
       function getBortleInfo(bortle: number) {
         const scale: Record<number, { label: string; sky: string; limiting: string }> = {
-          1: { label: 'Truly Dark', sky: 'Exceptional dark sky. Zodiacal light visible, airglow on horizon.', limiting: '8.0 mag' },
-          2: { label: 'Truly Dark', sky: 'Typical dark sky. M33 visible with direct vision.', limiting: '7.5 mag' },
-          3: { label: 'Rural', sky: 'Rural sky. Some light pollution on horizon. Milky Way complex.', limiting: '7.1 mag' },
-          4: { label: 'Rural/Suburban', sky: 'Rural/suburban transition. Milky Way still impressive.', limiting: '6.8 mag' },
-          5: { label: 'Suburban', sky: 'Suburban sky. Milky Way washed out but visible.', limiting: '6.3 mag' },
-          6: { label: 'Bright Suburban', sky: 'Bright suburban. Milky Way only visible near zenith.', limiting: '5.9 mag' },
-          7: { label: 'Suburban/Urban', sky: 'Suburban/urban transition. Milky Way invisible.', limiting: '5.6 mag' },
-          8: { label: 'City', sky: 'City sky. Only bright stars visible. Light dome prominent.', limiting: '5.0 mag' },
-          9: { label: 'Inner City', sky: 'Inner city. Only ~20 stars visible. Sky is grey, not black.', limiting: '4.5 mag' },
+          1: { label: 'Exceptional Dark', sky: 'Zodiacal light, gegenschein, and airglow all visible. Milky Way casts faint shadows.', limiting: '8.0 mag' },
+          2: { label: 'Truly Dark', sky: 'Extremely dark sky. Milky Way shows complex structure. M33 visible with direct vision.', limiting: '7.5 mag' },
+          3: { label: 'Rural', sky: 'Some light pollution on horizon. Milky Way still shows fine detail.', limiting: '7.1 mag' },
+          4: { label: 'Rural/Suburban', sky: 'Milky Way still impressive but washed out overhead. Light domes on horizon.', limiting: '6.8 mag' },
+          5: { label: 'Suburban', sky: 'Milky Way visible but lacks contrast. Many Messier objects visible in binoculars.', limiting: '6.3 mag' },
+          6: { label: 'Bright Suburban', sky: 'Milky Way only near zenith. Most Messier objects visible in telescope.', limiting: '5.9 mag' },
+          7: { label: 'Suburban/Urban', sky: 'Milky Way invisible. Only bright clusters and doubles worthwhile.', limiting: '5.6 mag' },
+          8: { label: 'City', sky: 'Only bright stars visible. Planets and Moon dominate. Light dome covers sky.', limiting: '5.0 mag' },
+          9: { label: 'Inner City', sky: 'Roughly 20 stars visible. Sky is grey-orange, not black.', limiting: '4.5 mag' },
         };
-        return scale[Math.min(9, Math.max(1, bortle))] ?? scale[5];
+        return scale[Math.min(9, Math.max(1, bortle))];
       }
 
-      // ── Estimate Bortle from population density via coordinates ──────────
-      // We use Open-Meteo elevation API + a rough population heuristic
-      // Real light pollution would need a paid API; we estimate from the geocoding result
-      function estimateBortle(city: string, country: string): number {
-        const bigCities = ['mumbai','delhi','london','new york','tokyo','shanghai','beijing','paris','chicago','los angeles','bangalore','hyderabad','chennai','kolkata','jakarta','seoul','mexico city','cairo','lagos'];
-        const medCities = ['indore','pune','jaipur','surat','lucknow','kanpur','nagpur','amsterdam','brussels','vienna','zurich','milan','rome','madrid','barcelona'];
-        const c = city.toLowerCase();
-        if (bigCities.some(b => c.includes(b))) return 8;
-        if (medCities.some(m => c.includes(m))) return 7;
-        return 5; // default suburban
+      // ── Visibility window ────────────────────────────────────────────────
+      function getVisibilityWindow(riseHour: number, setHour: number, tzOffset: number): string {
+        const adjust = (h: number) => {
+          let local = (h + tzOffset + 24) % 24;
+          const ampm = local >= 12 ? 'PM' : 'AM';
+          local = local % 12 || 12;
+          return `${local}:00 ${ampm}`;
+        };
+        return `${adjust(riseHour)} – ${adjust(setHour)}`;
       }
 
-      // ── Main functions ───────────────────────────────────────────────────
+      function renderObjectCard(obj: typeof SKY_OBJECTS[0], tzOffset: number) {
+        const visClass = obj.visibility === 'naked' ? 'vis-naked' : obj.visibility === 'binoculars' ? 'vis-binoculars' : 'vis-telescope';
+        const visLabel = obj.visibility === 'naked' ? 'Naked Eye' : obj.visibility === 'binoculars' ? 'Binoculars' : 'Telescope';
+        const window = obj.riseHour !== undefined ? getVisibilityWindow(obj.riseHour, obj.setHour, tzOffset) : '';
+        return `
+          <div class="object-card">
+            <img class="object-img" src="${obj.image}" alt="${obj.name}" loading="lazy" onerror="this.style.display='none'" />
+            <div class="object-body">
+              <div class="object-name">${obj.name}</div>
+              <div class="object-type">${obj.type}</div>
+              <div class="object-desc">${obj.desc}</div>
+              <div class="object-footer">
+                <span class="object-visibility ${visClass}">${visLabel}</span>
+                ${window ? `<span class="object-time">Visible: ${window}</span>` : ''}
+              </div>
+            </div>
+          </div>`;
+      }
+
+      // ── DOM ──────────────────────────────────────────────────────────────
       const cityInput = document.getElementById('city-input') as HTMLInputElement;
       const searchBtn = document.getElementById('search-btn')!;
       const locateBtn = document.getElementById('locate-btn')!;
@@ -478,25 +325,22 @@ import { SITE_TITLE } from '../consts';
       const errorMsg = document.getElementById('error-msg')!;
       const results = document.getElementById('results')!;
 
-      function showLoading() {
+      function showLoading(msg = 'Scanning the sky...') {
+        loading.textContent = msg;
         loading.classList.add('visible');
         errorMsg.classList.remove('visible');
         results.classList.remove('visible');
       }
       function hideLoading() { loading.classList.remove('visible'); }
-      function showError(msg: string) {
-        hideLoading();
-        errorMsg.textContent = msg;
-        errorMsg.classList.add('visible');
-      }
+      function showError(msg: string) { hideLoading(); errorMsg.textContent = msg; errorMsg.classList.add('visible'); }
 
-      async function geocode(city: string): Promise<{ lat: number; lon: number; name: string; country: string } | null> {
+      async function geocode(city: string) {
         const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
         const res = await fetch(url);
         const data = await res.json();
         if (!data.results?.length) return null;
         const r = data.results[0];
-        return { lat: r.latitude, lon: r.longitude, name: r.name, country: r.country };
+        return { lat: r.latitude, lon: r.longitude, name: r.name, country: r.country ?? '', timezone: r.timezone ?? 'UTC' };
       }
 
       async function getWeather(lat: number, lon: number) {
@@ -505,104 +349,71 @@ import { SITE_TITLE } from '../consts';
         return await res.json();
       }
 
-      function getVisibleObjects(bortle: number) {
-        return SKY_OBJECTS.filter(obj => {
-          if (obj.alwaysVisible) return true;
-          return bortle <= obj.minBortle;
-        });
-      }
-
-      function renderObjectCard(obj: typeof SKY_OBJECTS[0]) {
-        const visClass = obj.visibility === 'naked' ? 'vis-naked' : obj.visibility === 'binoculars' ? 'vis-binoculars' : 'vis-telescope';
-        const visLabel = obj.visibility === 'naked' ? 'Naked Eye' : obj.visibility === 'binoculars' ? 'Binoculars' : 'Telescope';
-        return `
-          <div class="object-card">
-            <img class="object-img" src="${obj.image}" alt="${obj.name}" loading="lazy" onerror="this.style.display='none'" />
-            <div class="object-body">
-              <div class="object-name">${obj.name}</div>
-              <div class="object-type">${obj.type}</div>
-              <div class="object-desc">${obj.desc}</div>
-              <span class="object-visibility ${visClass}">${visLabel}</span>
-            </div>
-          </div>`;
-      }
-
       async function renderResults(lat: number, lon: number, cityName: string, country: string) {
         try {
-          const weather = await getWeather(lat, lon);
-          const bortle = estimateBortle(cityName, country);
+          showLoading('Fetching weather data...');
+          const [weather, bortle] = await Promise.all([
+            getWeather(lat, lon),
+            fetchRealBortle(lat, lon),
+          ]);
+
+          showLoading('Calculating visibility...');
+
           const bortleInfo = getBortleInfo(bortle);
           const bortleClass = `bortle-${bortle}`;
-
-          const cloudCover = weather.daily?.cloudcover_mean?.[0] ?? weather.current_weather?.windspeed ?? 'N/A';
+          const cloudCover = weather.daily?.cloudcover_mean?.[0] ?? 50;
           const temp = weather.current_weather?.temperature ?? 'N/A';
           const windspeed = weather.current_weather?.windspeed ?? 'N/A';
           const precip = weather.daily?.precipitation_probability_max?.[0] ?? 'N/A';
           const skyQuality = cloudCover < 20 ? 'Clear' : cloudCover < 50 ? 'Partly Cloudy' : cloudCover < 80 ? 'Mostly Cloudy' : 'Overcast';
           const skyColor = cloudCover < 20 ? 'var(--accent-cyan)' : cloudCover < 50 ? 'var(--accent-gold)' : 'var(--accent-rose)';
 
-          // Location
-          document.getElementById('result-city')!.textContent = `${cityName}, ${country}`;
-          document.getElementById('result-coords')!.textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+          // Timezone offset in hours (rough, from lon)
+          const tzOffset = Math.round(lon / 15);
 
-          // Weather bar
+          document.getElementById('result-city')!.textContent = `${cityName}${country ? ', ' + country : ''}`;
+          document.getElementById('result-coords')!.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}° · UTC${tzOffset >= 0 ? '+' : ''}${tzOffset}`;
+
           document.getElementById('weather-bar')!.innerHTML = `
-            <div class="weather-item">
-              <span class="weather-label">Sky Tonight</span>
-              <span class="weather-value" style="color:${skyColor}">${skyQuality}</span>
-            </div>
-            <div class="weather-item">
-              <span class="weather-label">Cloud Cover</span>
-              <span class="weather-value">${typeof cloudCover === 'number' ? cloudCover + '%' : cloudCover}</span>
-            </div>
-            <div class="weather-item">
-              <span class="weather-label">Temperature</span>
-              <span class="weather-value">${temp}°C</span>
-            </div>
-            <div class="weather-item">
-              <span class="weather-label">Wind</span>
-              <span class="weather-value">${windspeed} km/h</span>
-            </div>
-            <div class="weather-item">
-              <span class="weather-label">Rain Chance</span>
-              <span class="weather-value">${precip}%</span>
-            </div>
+            <div class="weather-item"><span class="weather-label">Sky Tonight</span><span class="weather-value" style="color:${skyColor}">${skyQuality}</span></div>
+            <div class="weather-item"><span class="weather-label">Cloud Cover</span><span class="weather-value">${Math.round(cloudCover)}%</span></div>
+            <div class="weather-item"><span class="weather-label">Temperature</span><span class="weather-value">${temp}°C</span></div>
+            <div class="weather-item"><span class="weather-label">Wind</span><span class="weather-value">${windspeed} km/h</span></div>
+            <div class="weather-item"><span class="weather-label">Rain Chance</span><span class="weather-value">${precip}%</span></div>
+            <div class="weather-item"><span class="weather-label">Best Viewing</span><span class="weather-value" style="color:var(--accent-gold)">${cloudCover < 30 ? 'Tonight looks good' : cloudCover < 60 ? 'Partly usable' : 'Poor conditions'}</span></div>
           `;
 
-          // Stats
           document.getElementById('stats-grid')!.innerHTML = `
             <div class="stat-card">
-              <span class="stat-label">Bortle Scale</span>
+              <span class="stat-label">Bortle Class</span>
               <div class="stat-value ${bortleClass}">${bortle} / 9</div>
               <div class="stat-sub">${bortleInfo.label}</div>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Sky Conditions</span>
-              <div class="stat-value" style="font-size:1rem; color:var(--text-primary); margin-top:0.3rem;">${bortleInfo.sky}</div>
+              <span class="stat-label">Sky Description</span>
+              <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.4rem;line-height:1.6">${bortleInfo.sky}</div>
             </div>
             <div class="stat-card">
               <span class="stat-label">Limiting Magnitude</span>
               <div class="stat-value" style="color:var(--accent-cyan)">${bortleInfo.limiting}</div>
-              <div class="stat-sub">Faintest visible star</div>
+              <div class="stat-sub">Faintest naked eye star</div>
             </div>
             <div class="stat-card">
               <span class="stat-label">Milky Way</span>
-              <div class="stat-value" style="font-size:1rem; color:var(--text-primary); margin-top:0.3rem;">
-                ${bortle <= 3 ? 'Spectacular' : bortle <= 5 ? 'Visible' : bortle <= 6 ? 'Faint' : 'Invisible'}
+              <div class="stat-value" style="font-size:1.1rem;color:var(--text-primary);margin-top:0.3rem">
+                ${bortle <= 2 ? 'Casts shadows' : bortle <= 3 ? 'Spectacular' : bortle <= 5 ? 'Visible' : bortle <= 6 ? 'Faint' : 'Invisible'}
               </div>
             </div>
           `;
 
-          const visible = getVisibleObjects(bortle);
+          const visible = SKY_OBJECTS.filter(o => o.alwaysVisible || bortle <= o.minBortle);
           const naked = visible.filter(o => o.visibility === 'naked');
-          const binos = visible.filter(o => o.visibility === 'binoculars');
-          const scope = visible.filter(o => o.visibility === 'telescope');
+          const rest = visible.filter(o => o.visibility !== 'naked');
 
           document.getElementById('naked-header')!.textContent = `Visible to the Naked Eye (${naked.length} objects)`;
-          document.getElementById('naked-grid')!.innerHTML = naked.map(renderObjectCard).join('');
-
-          document.getElementById('scope-header')!.textContent = `Visible with Binoculars & Telescope (${binos.length + scope.length} objects)`;
-          document.getElementById('scope-grid')!.innerHTML = [...binos, ...scope].map(renderObjectCard).join('');
+          document.getElementById('naked-grid')!.innerHTML = naked.map(o => renderObjectCard(o, tzOffset)).join('');
+          document.getElementById('scope-header')!.textContent = `Visible with Binoculars and Telescope (${rest.length} objects)`;
+          document.getElementById('scope-grid')!.innerHTML = rest.map(o => renderObjectCard(o, tzOffset)).join('');
 
           hideLoading();
           results.classList.add('visible');
@@ -614,25 +425,20 @@ import { SITE_TITLE } from '../consts';
       searchBtn.addEventListener('click', async () => {
         const city = cityInput.value.trim();
         if (!city) return;
-        showLoading();
+        showLoading('Looking up location...');
         const geo = await geocode(city);
-        if (!geo) { showError(`Could not find "${city}". Try a different spelling.`); return; }
+        if (!geo) { showError(`Could not find "${city}". Try a different spelling or a nearby major city.`); return; }
         await renderResults(geo.lat, geo.lon, geo.name, geo.country);
       });
 
-      cityInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') searchBtn.click();
-      });
+      cityInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') searchBtn.click(); });
 
       locateBtn.addEventListener('click', () => {
-        if (!navigator.geolocation) { showError('Geolocation is not supported by your browser.'); return; }
-        showLoading();
+        if (!navigator.geolocation) { showError('Geolocation not supported by your browser.'); return; }
+        showLoading('Getting your location...');
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
-            const { latitude: lat, longitude: lon } = pos.coords;
-            // Reverse geocode
-            const url = `https://geocoding-api.open-meteo.com/v1/search?name=&latitude=${lat}&longitude=${lon}&count=1&language=en&format=json`;
-            await renderResults(lat, lon, 'Your Location', '');
+            await renderResults(pos.coords.latitude, pos.coords.longitude, 'Your Location', '');
           },
           () => showError('Location access denied. Please type your city instead.')
         );
