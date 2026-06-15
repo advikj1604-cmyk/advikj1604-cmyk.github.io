@@ -38,6 +38,8 @@ import { SITE_TITLE } from '../consts';
       .stat-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
       .stat-value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 300; line-height: 1.1; }
       .stat-sub { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.3rem; }
+      .stat-link { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-cyan); text-decoration: none; border-bottom: 1px solid rgba(79,195,247,0.3); }
+      .stat-link:hover { color: var(--star-white); border-color: var(--star-white); }
       .b1,.b2{color:#4fc3f7} .b3,.b4{color:#a5d6a7} .b5{color:#fff176} .b6,.b7{color:#ffab91} .b8,.b9{color:#e57373}
       .section-header { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1.5rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-subtle); }
       .objects-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 1.5px; background: var(--border-subtle); border: 1px solid var(--border-subtle); margin-bottom: 3rem; }
@@ -69,7 +71,7 @@ import { SITE_TITLE } from '../consts';
         <div class="tonight-intro">
           <span class="hero-eyebrow">✦ your sky tonight ✦</span>
           <h1>What can you see tonight?</h1>
-          <p>Enter your city or use your location. The page fetches real light pollution data, live weather, and shows everything currently visible from your sky.</p>
+          <p>Enter your city or use your location. The page calculates the Sun, Moon and planet positions for your exact location and date using the Astronomy Engine library, fetches live weather, and shows what's actually above your horizon tonight.</p>
         </div>
         <div class="location-form">
           <div class="location-input-wrap">
@@ -100,112 +102,97 @@ import { SITE_TITLE } from '../consts';
     <Footer />
 
     <script>
-      // ── Complete sky object database ────────────────────────────────────
-      // minBortle: maximum Bortle class where this is visible (9 = always)
-      // Images: real NASA/ESO/Hubble public domain URLs
-      const DB = [
-        // Always visible (planets, Moon, bright stars)
-        { name:'The Moon', type:'Natural Satellite', vis:'naked', minBortle:9,
-          desc:'Even to the naked eye, maria and highland regions are distinct. Binoculars reveal hundreds of craters. Changes phase over 29.5 days.',
-          img:'/sky/moon.jpg',
-          rise:18, set:6 },
-        { name:'Venus', type:'Planet', vis:'naked', minBortle:9,
-          desc:'The brightest natural object after the Sun and Moon. Never strays far from the Sun — look near the horizon at dawn or dusk.',
-          img:'/sky/venus.jpg',
-          rise:5, set:9 },
-        { name:'Jupiter', type:'Planet', vis:'naked', minBortle:9,
-          desc:'Often the brightest star-like object in the sky. Four Galilean moons visible in binoculars. Cloud bands visible in a small telescope.',
-          img:'/sky/jupiter.jpg',
-          rise:20, set:4 },
-        { name:'Saturn', type:'Planet', vis:'naked', minBortle:9,
-          desc:'Visible as a steady golden star. The rings are unmistakable even in a small telescope — never fails to astonish first-time viewers.',
-          img:'/sky/saturn.jpg',
-          rise:21, set:5 },
-        { name:'Mars', type:'Planet', vis:'naked', minBortle:9,
-          desc:'Unmistakable reddish-orange colour. Brightness varies dramatically — at opposition it rivals Jupiter.',
-          img:'/sky/mars.jpg',
-          rise:22, set:6 },
-        { name:'Mercury', type:'Planet', vis:'naked', minBortle:8,
-          desc:'The innermost planet, always close to the Sun. Visible low on the horizon for short windows after sunset or before sunrise.',
-          img:'/sky/mercury.jpg',
-          rise:6, set:8 },
-        { name:'Sirius', type:'Star (brightest)', vis:'naked', minBortle:8,
-          desc:'The brightest star in the night sky, in Canis Major. Blue-white and brilliant. Its slight twinkling and colour make it one of the most striking naked-eye stars.',
-          img:'/sky/sirius.jpg',
-          rise:19, set:3 },
-        { name:'Orion Constellation', type:'Constellation', vis:'naked', minBortle:7,
-          desc:'The hunter — one of the most recognisable star patterns. Three belt stars unmistakable. Betelgeuse (red supergiant) at one shoulder, Rigel (blue supergiant) at the foot.',
-          img:'/sky/orion-constellation.jpg',
-          rise:20, set:4 },
-        { name:'Pleiades (M45)', type:'Open Cluster', vis:'naked', minBortle:6,
-          desc:'Six or more stars visible naked eye in good conditions. A beautiful binocular target revealing dozens of young blue stars in a tight group.',
-          img:'/sky/pleiades.jpg',
-          rise:19, set:2 },
-        { name:'Milky Way Core', type:'Galaxy', vis:'naked', minBortle:3,
-          desc:'Our galaxy\'s central band. In Bortle 1-3 skies it stretches horizon to horizon and is bright enough to cast faint shadows. Completely invisible from any city.',
-          img:'/sky/milky-way.jpg',
-          rise:22, set:4 },
-        { name:'Zodiacal Light', type:'Atmospheric Phenomenon', vis:'naked', minBortle:2,
-          desc:'A faint pyramid of light extending from the horizon along the ecliptic. Only visible from very dark sites. Caused by sunlight scattering off interplanetary dust.',
-          img:'/sky/zodiacal.jpg',
-          rise:19, set:22 },
-        // Binocular objects
-        { name:'Andromeda Galaxy (M31)', type:'Galaxy', vis:'bino', minBortle:5,
-          desc:'Nearest major galaxy, 2.5 million light years away. Binoculars show its full oval extent, wider than six full Moons.',
-          img:'/sky/andromeda.jpg',
-          rise:20, set:3 },
-        { name:'Orion Nebula (M42)', type:'Emission Nebula', vis:'bino', minBortle:6,
-          desc:'A stellar nursery 1,344 light years away. Visible naked eye as a fuzzy star in Orion\'s sword. Binoculars reveal the glowing gas cloud and the Trapezium cluster.',
-          img:'/sky/orion-nebula.jpg',
-          rise:20, set:4 },
-        { name:'Beehive Cluster (M44)', type:'Open Cluster', vis:'bino', minBortle:6,
-          desc:'A nearby open cluster in Cancer visible to the naked eye in dark skies. Binoculars resolve it into dozens of stars spread across a region wider than the Moon.',
-          img:'/sky/beehive.jpg',
-          rise:19, set:3 },
-        { name:'Double Cluster (NGC 869/884)', type:'Open Cluster', vis:'bino', minBortle:5,
-          desc:'Two rich open clusters side by side in Perseus. Hundreds of young stars in a single binocular field of view — one of the finest sights in the northern sky.',
-          img:'/sky/double-cluster.jpg',
-          rise:19, set:5 },
-        { name:'Omega Centauri (NGC 5139)', type:'Globular Cluster', vis:'bino', minBortle:5,
-          desc:'The largest globular cluster in the Milky Way — 10 million stars in a ball 150 light years across. Best from the Southern Hemisphere. A naked eye object from dark sites.',
-          img:'/sky/omega-centauri.jpg',
-          rise:22, set:4 },
-        { name:'47 Tucanae (NGC 104)', type:'Globular Cluster', vis:'bino', minBortle:4,
-          desc:'The second brightest globular cluster, appearing next to the Small Magellanic Cloud. One million stars packed into a sphere 120 light years across.',
-          img:'/sky/47tuc.jpg',
-          rise:21, set:5 },
-        // Telescope objects
-        { name:'Ring Nebula (M57)', type:'Planetary Nebula', vis:'scope', minBortle:7,
-          desc:'A dying star\'s expelled shell in Lyra. Even a small telescope reveals the distinctive smoke-ring shape around the central white dwarf.',
-          img:'/sky/ring-nebula.jpg',
-          rise:21, set:5 },
-        { name:'Whirlpool Galaxy (M51)', type:'Spiral Galaxy', vis:'scope', minBortle:4,
-          desc:'A face-on spiral galaxy interacting with a companion. Long exposures reveal spiral arms. One of the most photographed deep sky objects.',
-          img:'/sky/whirlpool.jpg',
-          rise:21, set:4 },
-        { name:'Crab Nebula (M1)', type:'Supernova Remnant', vis:'scope', minBortle:5,
-          desc:'Remnant of a supernova seen in 1054 AD. Still expanding at 1,500 km/s. A telescope shows tangled glowing filaments powered by a central pulsar.',
-          img:'/sky/crab-nebula.jpg',
-          rise:20, set:3 },
-        { name:'Sombrero Galaxy (M104)', type:'Galaxy', vis:'scope', minBortle:4,
-          desc:'An edge-on spiral with a bright nucleus and a prominent dark dust lane. One of the most distinctive galaxy shapes in the Messier catalogue.',
-          img:'/sky/sombrero.jpg',
-          rise:21, set:4 },
-        { name:'Lagoon Nebula (M8)', type:'Emission Nebula', vis:'scope', minBortle:5,
-          desc:'A bright emission nebula and open cluster in Sagittarius. Visible to the naked eye from dark sites, stunning in a telescope with glowing gas clouds.',
-          img:'/sky/lagoon-nebula.jpg',
-          rise:22, set:4 },
-        { name:'Triangulum Galaxy (M33)', type:'Galaxy', vis:'scope', minBortle:3,
-          desc:'The third largest galaxy in the Local Group at 2.7 million light years. Requires a very dark sky to see well — it covers an area larger than the full Moon.',
-          img:'/sky/triangulum.jpg',
-          rise:20, set:3 },
-        { name:'Eta Carinae Nebula', type:'Emission Nebula', vis:'scope', minBortle:4,
-          desc:'One of the largest and most luminous nebulae visible, in the Southern Hemisphere. Contains the unstable hypergiant star Eta Carinae, which may explode as a supernova.',
-          img:'/sky/eta-carinae.jpg',
-          rise:21, set:5 },
-      ];
+      import * as Astronomy from 'astronomy-engine';
 
-      // Bortle estimation handled by getRealBortle() above
+      const RISE = 1;
+      const SET = -1;
+
+      // ── Sky object catalog ───────────────────────────────────────────────
+      // Solar-system bodies carry an Astronomy.Body — their real position is
+      // computed for the search location and date. Stars / deep-sky objects
+      // carry fixed J2000 right ascension (hours) / declination (degrees);
+      // the small amount of precession since J2000 is negligible for
+      // rise/set timing at the minute level.
+      type SkyObject = {
+        name: string; type: string; vis: 'naked'|'bino'|'scope'; minBortle: number;
+        desc: string; img: string;
+        body?: Astronomy.Body; ra?: number; dec?: number; special?: string;
+      };
+
+      const CATALOG: SkyObject[] = [
+        { name:'The Moon', type:'Natural Satellite', vis:'naked', minBortle:9, body:Astronomy.Body.Moon,
+          desc:'Even to the naked eye, maria and highland regions are distinct. Binoculars reveal hundreds of craters. Its phase and rise time shift noticeably from night to night.',
+          img:'/sky/moon.jpg' },
+        { name:'Venus', type:'Planet', vis:'naked', minBortle:9, body:Astronomy.Body.Venus,
+          desc:'The brightest natural object after the Sun and Moon. Never strays far from the Sun — look near the horizon at dawn or dusk.',
+          img:'/sky/venus.jpg' },
+        { name:'Jupiter', type:'Planet', vis:'naked', minBortle:9, body:Astronomy.Body.Jupiter,
+          desc:'Often the brightest star-like object in the sky. Four Galilean moons visible in binoculars. Cloud bands visible in a small telescope.',
+          img:'/sky/jupiter.jpg' },
+        { name:'Saturn', type:'Planet', vis:'naked', minBortle:9, body:Astronomy.Body.Saturn,
+          desc:'Visible as a steady golden star. The rings are unmistakable even in a small telescope — never fails to astonish first-time viewers.',
+          img:'/sky/saturn.jpg' },
+        { name:'Mars', type:'Planet', vis:'naked', minBortle:9, body:Astronomy.Body.Mars,
+          desc:'Unmistakable reddish-orange colour. Brightness varies dramatically — at opposition it rivals Jupiter.',
+          img:'/sky/mars.jpg' },
+        { name:'Mercury', type:'Planet', vis:'naked', minBortle:8, body:Astronomy.Body.Mercury,
+          desc:'The innermost planet, always close to the Sun. Visible low on the horizon for short windows after sunset or before sunrise.',
+          img:'/sky/mercury.jpg' },
+        { name:'Sirius', type:'Star (brightest)', vis:'naked', minBortle:8, ra:6.7525, dec:-16.7161,
+          desc:'The brightest star in the night sky, in Canis Major. Blue-white and brilliant, with a noticeable twinkle low on the horizon.',
+          img:'/sky/sirius.jpg' },
+        { name:'Orion Constellation', type:'Constellation', vis:'naked', minBortle:7, ra:5.9195, dec:7.4070,
+          desc:'The hunter — one of the most recognisable star patterns. Three belt stars unmistakable. Betelgeuse (red supergiant) at one shoulder, Rigel (blue supergiant) at the foot.',
+          img:'/sky/orion-constellation.jpg' },
+        { name:'Pleiades (M45)', type:'Open Cluster', vis:'naked', minBortle:6, ra:3.7913, dec:24.1133,
+          desc:'Six or more stars visible naked eye in good conditions. A beautiful binocular target revealing dozens of young blue stars in a tight group.',
+          img:'/sky/pleiades.jpg' },
+        { name:'Milky Way Core', type:'Galaxy', vis:'naked', minBortle:3, ra:17.7611, dec:-29.0078,
+          desc:"Our galaxy's central band, centred near Sagittarius A*. In Bortle 1-3 skies it stretches across the sky and is bright enough to cast faint shadows. Only above the horizon for part of the year and part of the night.",
+          img:'/sky/milky-way.jpg' },
+        { name:'Zodiacal Light', type:'Atmospheric Phenomenon', vis:'naked', minBortle:2, special:'zodiacal',
+          desc:'A faint pyramid of light extending from the horizon along the ecliptic, caused by sunlight scattering off interplanetary dust. Only visible from very dark, moonless sites.',
+          img:'/sky/zodiacal.jpg' },
+        { name:'Andromeda Galaxy (M31)', type:'Galaxy', vis:'bino', minBortle:5, ra:0.7122, dec:41.2692,
+          desc:'Nearest major galaxy, 2.5 million light years away. Binoculars show its full oval extent, wider than six full Moons.',
+          img:'/sky/andromeda.jpg' },
+        { name:'Orion Nebula (M42)', type:'Emission Nebula', vis:'bino', minBortle:6, ra:5.5880, dec:-5.3911,
+          desc:"A stellar nursery 1,344 light years away. Visible naked eye as a fuzzy star in Orion's sword. Binoculars reveal the glowing gas cloud and the Trapezium cluster.",
+          img:'/sky/orion-nebula.jpg' },
+        { name:'Beehive Cluster (M44)', type:'Open Cluster', vis:'bino', minBortle:6, ra:8.6734, dec:19.9814,
+          desc:'A nearby open cluster in Cancer visible to the naked eye in dark skies. Binoculars resolve it into dozens of stars spread across a region wider than the Moon.',
+          img:'/sky/beehive.jpg' },
+        { name:'Double Cluster (NGC 869/884)', type:'Open Cluster', vis:'bino', minBortle:5, ra:2.3333, dec:57.1333,
+          desc:'Two rich open clusters side by side in Perseus. Hundreds of young stars in a single binocular field of view — one of the finest sights in the northern sky.',
+          img:'/sky/double-cluster.jpg' },
+        { name:'Omega Centauri (NGC 5139)', type:'Globular Cluster', vis:'bino', minBortle:5, ra:13.4464, dec:-47.4769,
+          desc:'The largest globular cluster in the Milky Way — 10 million stars in a ball 150 light years across. Best from the Southern Hemisphere.',
+          img:'/sky/omega-centauri.jpg' },
+        { name:'47 Tucanae (NGC 104)', type:'Globular Cluster', vis:'bino', minBortle:4, ra:0.4014, dec:-72.0806,
+          desc:'The second brightest globular cluster, appearing next to the Small Magellanic Cloud. One million stars packed into a sphere 120 light years across.',
+          img:'/sky/47tuc.jpg' },
+        { name:'Ring Nebula (M57)', type:'Planetary Nebula', vis:'scope', minBortle:7, ra:18.8932, dec:33.0292,
+          desc:"A dying star's expelled shell in Lyra. Even a small telescope reveals the distinctive smoke-ring shape around the central white dwarf.",
+          img:'/sky/ring-nebula.jpg' },
+        { name:'Whirlpool Galaxy (M51)', type:'Spiral Galaxy', vis:'scope', minBortle:4, ra:13.4979, dec:47.1953,
+          desc:'A face-on spiral galaxy interacting with a companion. Long exposures reveal spiral arms. One of the most photographed deep sky objects.',
+          img:'/sky/whirlpool.jpg' },
+        { name:'Crab Nebula (M1)', type:'Supernova Remnant', vis:'scope', minBortle:5, ra:5.5755, dec:22.0145,
+          desc:'Remnant of a supernova seen in 1054 AD, still expanding at 1,500 km/s. A telescope shows tangled glowing filaments powered by a central pulsar.',
+          img:'/sky/crab-nebula.jpg' },
+        { name:'Sombrero Galaxy (M104)', type:'Galaxy', vis:'scope', minBortle:4, ra:12.6661, dec:-11.6231,
+          desc:'An edge-on spiral with a bright nucleus and a prominent dark dust lane. One of the most distinctive galaxy shapes in the Messier catalogue.',
+          img:'/sky/sombrero.jpg' },
+        { name:'Lagoon Nebula (M8)', type:'Emission Nebula', vis:'scope', minBortle:5, ra:18.0603, dec:-24.3833,
+          desc:'A bright emission nebula and open cluster in Sagittarius. Visible to the naked eye from dark sites, stunning in a telescope with glowing gas clouds.',
+          img:'/sky/lagoon-nebula.jpg' },
+        { name:'Triangulum Galaxy (M33)', type:'Galaxy', vis:'scope', minBortle:3, ra:1.5642, dec:30.6602,
+          desc:'The third largest galaxy in the Local Group at 2.7 million light years. Requires a very dark sky to see well — it covers an area larger than the full Moon.',
+          img:'/sky/triangulum.jpg' },
+        { name:'Eta Carinae Nebula', type:'Emission Nebula', vis:'scope', minBortle:4, ra:10.7522, dec:-59.8678,
+          desc:'One of the largest and most luminous nebulae visible, in the Southern Hemisphere. Contains the unstable hypergiant star Eta Carinae, which may explode as a supernova.',
+          img:'/sky/eta-carinae.jpg' },
+      ];
 
       function getBortleInfo(b: number) {
         return [
@@ -222,17 +209,146 @@ import { SITE_TITLE } from '../consts';
         ][Math.min(9, Math.max(1, b))];
       }
 
-      function fmtTime(hour: number, tzOffset: number): string {
-        const local = ((hour + tzOffset) % 24 + 24) % 24;
-        const ampm = local >= 12 ? 'PM' : 'AM';
-        const h = local % 12 || 12;
-        return `${h}:00 ${ampm}`;
+      // Population-based Bortle estimate. This is necessarily an
+      // approximation — real light pollution depends on terrain, nearby
+      // cities and lighting practices that population alone can't capture.
+      function popToBortle(lat: number, lon: number, pop: number): number {
+        const absLat = Math.abs(lat);
+        if (absLat > 66) return 1;                                              // polar
+        if (lat>-26&&lat<-18&&lon>-72&&lon<-65) return 1;                      // Atacama
+        if (lat>-35&&lat<-20&&lon>140&&lon<150&&pop<5000) return 2;            // Australian outback
+        if (lat>18&&lat<32&&lon>0&&lon<35&&pop<10000) return 2;                // Sahara
+        if (lat>42&&lat<50&&lon>90&&lon<118&&pop<20000) return 2;              // Mongolian steppe
+        if (lat>35&&lat<42&&lon>-115&&lon<-105&&pop<10000) return 2;           // US high desert
+        if (absLat>55&&pop<5000) return 2;                                      // remote high lat
+        if (absLat>45&&pop<20000) return 3;                                     // remote mid lat
+        if (pop === 0) return 3;
+        if (pop < 1000) return 3;
+        if (pop < 5000) return 4;
+        if (pop < 20000) return 5;
+        if (pop < 100000) return 6;
+        if (pop < 500000) return 7;
+        if (pop < 2000000) return 8;
+        return 9;
       }
 
-      function renderCard(obj: typeof DB[0], tzOffset: number): string {
+      // ── Astronomy Engine helpers ─────────────────────────────────────────
+
+      function altDeg(time: Astronomy.AstroTime, ra: number, dec: number, observer: Astronomy.Observer): number {
+        return Astronomy.Horizon(time, observer, ra, dec, 'normal').altitude;
+      }
+
+      // Binary-search refine a rise/set crossing between two times that
+      // straddle altitude = 0.
+      function bisectCrossing(t1: Astronomy.AstroTime, t2: Astronomy.AstroTime, ra: number, dec: number, observer: Astronomy.Observer): Astronomy.AstroTime {
+        let a = t1, b = t2;
+        for (let i = 0; i < 20; i++) {
+          const mid = a.AddDays((b.ut - a.ut) / 2);
+          const signA = altDeg(a, ra, dec, observer) >= 0 ? 1 : -1;
+          const signM = altDeg(mid, ra, dec, observer) >= 0 ? 1 : -1;
+          if (signA === signM) a = mid; else b = mid;
+        }
+        return a.AddDays((b.ut - a.ut) / 2);
+      }
+
+      // Finds the (first) continuous interval within [winStart, winEnd]
+      // during which the object at (ra, dec) is above the horizon.
+      // Returns null if it never rises above the horizon in that window.
+      function findUpInterval(ra: number, dec: number, observer: Astronomy.Observer, winStart: Astronomy.AstroTime, winEnd: Astronomy.AstroTime): { start: Astronomy.AstroTime, end: Astronomy.AstroTime } | null {
+        const stepDays = 6 / 1440; // 6-minute samples
+        let t = winStart;
+        let prevAlt = altDeg(t, ra, dec, observer);
+        let start: Astronomy.AstroTime | null = prevAlt >= 0 ? winStart : null;
+        let end: Astronomy.AstroTime | null = null;
+        while (t.ut < winEnd.ut) {
+          const remaining = winEnd.ut - t.ut;
+          const next = t.AddDays(Math.min(stepDays, remaining));
+          const alt = altDeg(next, ra, dec, observer);
+          if (start === null && prevAlt < 0 && alt >= 0) {
+            start = bisectCrossing(t, next, ra, dec, observer);
+          } else if (start !== null && end === null && prevAlt >= 0 && alt < 0) {
+            end = bisectCrossing(t, next, ra, dec, observer);
+          }
+          prevAlt = alt;
+          t = next;
+        }
+        if (start !== null && end === null) end = winEnd;
+        return start !== null ? { start, end } : null;
+      }
+
+      function getEquatorial(obj: SkyObject, observer: Astronomy.Observer, time: Astronomy.AstroTime): { ra: number, dec: number } {
+        if (obj.body !== undefined) {
+          const eq = Astronomy.Equator(obj.body, time, observer, true, true);
+          return { ra: eq.ra, dec: eq.dec };
+        }
+        return { ra: obj.ra!, dec: obj.dec! };
+      }
+
+      // Works out tonight's dusk→dawn window and the astronomical-twilight
+      // ("truly dark") window around the current moment.
+      function getNightWindow(observer: Astronomy.Observer, now: Astronomy.AstroTime) {
+        const Sun = Astronomy.Body.Sun;
+        const nextRise = Astronomy.SearchRiseSet(Sun, observer, RISE, now, 2);
+        const nextSet = Astronomy.SearchRiseSet(Sun, observer, SET, now, 2);
+
+        let nightStart: Astronomy.AstroTime | null = null;
+        let nightEnd: Astronomy.AstroTime | null = null;
+
+        if (nextRise && nextSet && nextRise.ut < nextSet.ut) {
+          // It's currently night — the Sun rises before it next sets.
+          nightEnd = nextRise;
+          nightStart = Astronomy.SearchRiseSet(Sun, observer, SET, now.AddDays(-1), 1.5);
+        } else if (nextSet) {
+          nightStart = nextSet;
+          nightEnd = Astronomy.SearchRiseSet(Sun, observer, RISE, nextSet, 1.5);
+        }
+
+        if (!nightStart || !nightEnd) {
+          // Polar day/night — fall back to a 24h window from now.
+          nightStart = now;
+          nightEnd = now.AddDays(1);
+        }
+
+        let darkStart = Astronomy.SearchAltitude(Sun, observer, SET, nightStart, 1, -18) ?? nightStart;
+        let darkEnd = Astronomy.SearchAltitude(Sun, observer, RISE, darkStart, 1, -18) ?? nightEnd;
+        if (darkStart.ut < nightStart.ut) darkStart = nightStart;
+        if (darkStart.ut > nightEnd.ut) darkStart = nightEnd;
+        if (darkEnd.ut > nightEnd.ut) darkEnd = nightEnd;
+        if (darkEnd.ut < darkStart.ut) darkEnd = darkStart;
+
+        return { nightStart, nightEnd, darkStart, darkEnd };
+      }
+
+      function moonPhaseName(angle: number): string {
+        const a = ((angle % 360) + 360) % 360;
+        if (a < 22.5 || a >= 337.5) return 'New Moon';
+        if (a < 67.5) return 'Waxing Crescent';
+        if (a < 112.5) return 'First Quarter';
+        if (a < 157.5) return 'Waxing Gibbous';
+        if (a < 202.5) return 'Full Moon';
+        if (a < 247.5) return 'Waning Gibbous';
+        if (a < 292.5) return 'Last Quarter';
+        return 'Waning Crescent';
+      }
+
+      // Renders an AstroTime as a local clock time using a UTC offset in
+      // seconds (so half-hour/quarter-hour timezones work correctly).
+      function fmtTime(t: Astronomy.AstroTime, tzOffsetSec: number): string {
+        const d = new Date(t.date.getTime() + tzOffsetSec * 1000);
+        let h = d.getUTCHours();
+        const m = d.getUTCMinutes();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+      }
+
+      function renderCard(obj: SkyObject, up: { start: Astronomy.AstroTime, end: Astronomy.AstroTime } | null, tzOffsetSec: number, mag: number | null): string {
         const visClass = obj.vis==='naked'?'vis-naked':obj.vis==='bino'?'vis-bino':'vis-scope';
         const visLabel = obj.vis==='naked'?'Naked Eye':obj.vis==='bino'?'Binoculars':'Telescope';
-        const window = `${fmtTime(obj.rise,tzOffset)} – ${fmtTime(obj.set,tzOffset)}`;
+        const windowText = (obj.special === 'zodiacal' || !up)
+          ? '~80 min after dusk or before dawn, near horizon'
+          : `${fmtTime(up.start,tzOffsetSec)} – ${fmtTime(up.end,tzOffsetSec)}`;
+        const magText = (mag !== null && mag !== undefined) ? ` · mag ${mag.toFixed(1)}` : '';
         return `
           <div class="object-card">
             <img class="object-img" src="${obj.img}" alt="${obj.name}" loading="lazy"
@@ -240,11 +356,11 @@ import { SITE_TITLE } from '../consts';
             <div class="object-img-fallback" style="display:none">✦</div>
             <div class="object-body">
               <div class="object-name">${obj.name}</div>
-              <div class="object-type">${obj.type}</div>
+              <div class="object-type">${obj.type}${magText}</div>
               <div class="object-desc">${obj.desc}</div>
               <div class="object-footer">
                 <span class="object-vis ${visClass}">${visLabel}</span>
-                <span class="object-time">Visible: ${window}</span>
+                <span class="object-time">Visible: ${windowText}</span>
               </div>
             </div>
           </div>`;
@@ -273,38 +389,12 @@ import { SITE_TITLE } from '../consts';
         return { lat:x.latitude, lon:x.longitude, name:x.name, country:x.country??'', admin:x.admin1??'', population:x.population??0 };
       }
 
-      // Bortle calculated directly from geocode population field
-
-      function popToBortle(lat: number, lon: number, pop: number): number {
-        // Known dark site bounding boxes override population data
-        const absLat = Math.abs(lat);
-        if (absLat > 66) return 1;                                              // polar
-        if (lat>-26&&lat<-18&&lon>-72&&lon<-65) return 1;                      // Atacama
-        if (lat>-35&&lat<-20&&lon>140&&lon<150&&pop<5000) return 2;            // Australian outback
-        if (lat>18&&lat<32&&lon>0&&lon<35&&pop<10000) return 2;                // Sahara
-        if (lat>42&&lat<50&&lon>90&&lon<118&&pop<20000) return 2;              // Mongolian steppe
-        if (lat>35&&lat<42&&lon>-115&&lon<-105&&pop<10000) return 2;           // US high desert
-        if (absLat>55&&pop<5000) return 2;                                      // remote high lat
-        if (absLat>45&&pop<20000) return 3;                                     // remote mid lat
-        // Population-based for everything else
-        if (pop === 0) return 3;
-        if (pop < 1000) return 3;
-        if (pop < 5000) return 4;
-        if (pop < 20000) return 5;
-        if (pop < 100000) return 6;
-        if (pop < 500000) return 7;
-        if (pop < 2000000) return 8;
-        return 9;
-      }
-
-
-
       async function renderResults(lat: number, lon: number, cityName: string, country: string, population: number = 0) {
         try {
-          showLoading('Fetching weather and light pollution data...');
-          const [weather] = await Promise.all([
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_probability_max,cloudcover_mean&current_weather=true&forecast_days=1&timezone=auto`).then(r => r.json()),
-          ]);
+          showLoading('Fetching weather and computing tonight\'s sky...');
+          const weather = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_probability_max,cloudcover_mean&current_weather=true&forecast_days=1&timezone=auto`).then(r => r.json());
+
+          const tzOffsetSec: number = weather.utc_offset_seconds ?? Math.round(lon / 15) * 3600;
           const bortle = popToBortle(lat, lon, population);
           const info = getBortleInfo(bortle)!;
           const cloud = weather.daily?.cloudcover_mean?.[0] ?? 50;
@@ -313,38 +403,85 @@ import { SITE_TITLE } from '../consts';
           const precip = weather.daily?.precipitation_probability_max?.[0] ?? 'N/A';
           const skyQ = cloud<20?'Clear':cloud<50?'Partly Cloudy':cloud<80?'Mostly Cloudy':'Overcast';
           const skyC = cloud<20?'var(--accent-cyan)':cloud<50?'var(--accent-gold)':'var(--accent-rose)';
-          const tzOffset = Math.round(lon / 15);
+
+          // ── Astronomy Engine: compute tonight's sky for this place/date ──
+          const observer = new Astronomy.Observer(lat, lon, 0);
+          const now = Astronomy.MakeTime(new Date());
+          const { nightStart, nightEnd, darkStart, darkEnd } = getNightWindow(observer, now);
+          const midTime = nightStart.AddDays((nightEnd.ut - nightStart.ut) / 2);
+
+          // Moon phase + whether bright moonlight will be up during dark hours
+          const moonIllum = Astronomy.Illumination(Astronomy.Body.Moon, now);
+          const moonAngle = Astronomy.MoonPhase(now);
+          const moonPct = Math.round(moonIllum.phase_fraction * 100);
+          const moonName = moonPhaseName(moonAngle);
+          const moonEq = Astronomy.Equator(Astronomy.Body.Moon, midTime, observer, true, true);
+          const moonUpDuringDark = darkEnd.ut > darkStart.ut
+            ? findUpInterval(moonEq.ra, moonEq.dec, observer, darkStart, darkEnd)
+            : null;
+          const moonPenalty = (moonUpDuringDark && moonPct > 65) ? 2 : (moonUpDuringDark && moonPct > 35 ? 1 : 0);
+          const effectiveBortle = Math.min(9, bortle + moonPenalty);
 
           document.getElementById('result-city')!.textContent = `${cityName}${country?', '+country:''}`;
-          document.getElementById('result-coords')!.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}° · UTC${tzOffset>=0?'+':''}${tzOffset}`;
+          document.getElementById('result-coords')!.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+
+          const darkText = darkEnd.ut > darkStart.ut
+            ? `${fmtTime(darkStart,tzOffsetSec)} – ${fmtTime(darkEnd,tzOffsetSec)}`
+            : 'No true darkness tonight';
 
           document.getElementById('weather-bar')!.innerHTML = `
-            <div class="weather-item"><span class="weather-label">Sky Tonight</span><span class="weather-value" style="color:${skyC}">${skyQ}</span></div>
-            <div class="weather-item"><span class="weather-label">Cloud Cover</span><span class="weather-value">${Math.round(cloud)}%</span></div>
-            <div class="weather-item"><span class="weather-label">Temperature</span><span class="weather-value">${temp}°C</span></div>
-            <div class="weather-item"><span class="weather-label">Wind</span><span class="weather-value">${wind} km/h</span></div>
-            <div class="weather-item"><span class="weather-label">Rain Chance</span><span class="weather-value">${precip}%</span></div>
-            <div class="weather-item"><span class="weather-label">Best Viewing</span><span class="weather-value" style="color:var(--accent-gold)">${cloud<30?'Good tonight':cloud<60?'Partly usable':'Poor conditions'}</span></div>`;
-
+            <div class="weather-item"><span class="weather-label">Sky Tonight </span><span class="weather-value" style="color:${skyC}">${skyQ}</span></div>
+            <div class="weather-item"><span class="weather-label">Cloud Cover </span><span class="weather-value" style="color:${skyC}">${Math.round(cloud)}%</span></div>
+            <div class="weather-item"><span class="weather-label">Temperature </span><span class="weather-value" style="color:${skyC}">${temp}°C</span></div>
+            <div class="weather-item"><span class="weather-label">Wind </span><span class="weather-value" style="color:${skyC}">${wind} km/h</span></div>
+            <div class="weather-item"><span class="weather-label">Rain Chance </span><span class="weather-value" style="color:${skyC}">${precip}%</span></div>
+            <div class="weather-item"><span class="weather-label">Sunset → Sunrise </span><span class="weather-value" style="color:${skyC}">${fmtTime(nightStart,tzOffsetSec)} – ${fmtTime(nightEnd,tzOffsetSec)}</span></div>
+            <div class="weather-item"><span class="weather-label">Astronomical Dark </span><span class="weather-value" style="color:${skyC}">${darkText}</span></div>
+            <div class="weather-item"><span class="weather-label">Moon Tonight </span><span class="weather-value" style="color:${skyC}">${moonName} (${moonPct}%)${moonUpDuringDark?'':' · below horizon'}</span></div>
+            <div class="weather-item"><span class="weather-label">Best Viewing </span><span class="weather-value" style="color:var(--accent-gold)">${cloud<30 && moonPenalty===0?'Good tonight':cloud<60?'Partly usable':'Poor conditions'}</span></div>`;
+          const lpLink = `https://lightpollutionmap.app/?lat=${lat.toFixed(4)}&lng=${lon.toFixed(4)}&zoom=8`;
           document.getElementById('stats-grid')!.innerHTML = `
-            <div class="stat-card"><span class="stat-label">Bortle Class</span><div class="stat-value b${bortle}">${bortle} / 9</div><div class="stat-sub">${info.label}</div></div>
+            <div class="stat-card"><span class="stat-label">Bortle Class (estimated)</span><div class="stat-value b${bortle}">${bortle} / 9</div><div class="stat-sub">${info.label}</div></div>
             <div class="stat-card"><span class="stat-label">Sky Description</span><div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.4rem;line-height:1.6">${info.sky}</div></div>
-            <div class="stat-card"><span class="stat-label">Limiting Magnitude</span><div class="stat-value" style="color:var(--accent-cyan)">${info.limiting}</div><div class="stat-sub">Faintest naked eye star</div></div>
-            <div class="stat-card"><span class="stat-label">Milky Way</span><div class="stat-value" style="font-size:1.1rem;color:var(--text-primary);margin-top:0.3rem">${bortle<=2?'Casts shadows':bortle<=3?'Spectacular':bortle<=5?'Visible':bortle<=6?'Faint':'Invisible'}</div></div>`;
+            <div class="stat-card"><span class="stat-label">Limiting Magnitude</span><div class="stat-value" style="color:var(--accent-cyan)">${info.limiting}</div><div class="stat-sub">${moonPenalty>0?'Worse tonight — moonlight raises the sky background':'Faintest naked eye star'}</div></div>
+            <div class="stat-card"><span class="stat-label">Verify Your Sky</span><div style="margin-top:0.6rem"><a class="stat-link" href="${lpLink}" target="_blank" rel="noopener">Open a detailed light-pollution map →</a></div><div class="stat-sub" style="margin-top:0.6rem">This Bortle class is estimated from population data — the map above uses real satellite light data for your exact spot.</div></div>`;
 
-          const visible = DB.filter(o => bortle <= o.minBortle);
-          const naked = visible.filter(o => o.vis==='naked');
-          const rest  = visible.filter(o => o.vis!=='naked');
+          // ── Build tonight's object lists from real positions ─────────────
+          type Entry = { obj: SkyObject, up: { start: Astronomy.AstroTime, end: Astronomy.AstroTime } | null, mag: number | null };
+          const naked: Entry[] = [];
+          const rest: Entry[] = [];
 
-          document.getElementById('naked-header')!.textContent = `Visible to the Naked Eye (${naked.length} objects)`;
-          document.getElementById('naked-grid')!.innerHTML = naked.map(o=>renderCard(o,tzOffset)).join('');
-          document.getElementById('scope-header')!.textContent = `Binoculars and Telescope (${rest.length} objects)`;
-          document.getElementById('scope-grid')!.innerHTML = rest.map(o=>renderCard(o,tzOffset)).join('');
+          for (const obj of CATALOG) {
+            if (obj.special === 'zodiacal') {
+              if (effectiveBortle <= obj.minBortle) naked.push({ obj, up: null, mag: null });
+              continue;
+            }
+            const { ra, dec } = getEquatorial(obj, observer, midTime);
+            const up = findUpInterval(ra, dec, observer, nightStart, nightEnd);
+            if (!up) continue; // below the horizon all night — not visible tonight
+
+            // Faint targets (minBortle <= 6) are also hurt by moonlight.
+            const limit = obj.minBortle <= 6 ? effectiveBortle : bortle;
+            if (limit > obj.minBortle) continue;
+
+            let mag: number | null = null;
+            if (obj.body !== undefined && obj.body !== Astronomy.Body.Moon) {
+              mag = Astronomy.Illumination(obj.body, midTime).mag;
+            }
+            (obj.vis === 'naked' ? naked : rest).push({ obj, up, mag });
+          }
+
+          document.getElementById('naked-header')!.textContent = `Visible to the Naked Eye (${naked.length} object${naked.length!==1?'s':''})`;
+          document.getElementById('naked-grid')!.innerHTML = naked.map(({obj,up,mag}) => renderCard(obj,up,tzOffsetSec,mag)).join('')
+            || '<p style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem;padding:1rem">Nothing on the naked-eye list clears the horizon and your sky brightness tonight.</p>';
+          document.getElementById('scope-header')!.textContent = `Binoculars and Telescope (${rest.length} object${rest.length!==1?'s':''})`;
+          document.getElementById('scope-grid')!.innerHTML = rest.map(({obj,up,mag}) => renderCard(obj,up,tzOffsetSec,mag)).join('')
+            || '<p style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem;padding:1rem">Nothing on this list clears the horizon and your sky brightness tonight.</p>';
 
           hideLoading(); resultsEl.classList.add('visible');
         } catch(e) {
           console.error('Sky data error:', e);
-          showError('Could not fetch sky data. Check console for details.');
+          showError('Could not compute sky data. Check console for details.');
         }
       }
 
