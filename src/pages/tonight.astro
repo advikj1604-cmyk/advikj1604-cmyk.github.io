@@ -214,23 +214,28 @@ import { SITE_TITLE } from '../consts';
       // cities and lighting practices that population alone can't capture.
       function popToBortle(lat: number, lon: number, pop: number): number {
         const absLat = Math.abs(lat);
+        // Known dark site regions — override population estimate
         if (absLat > 66) return 1;                                              // polar
         if (lat>-26&&lat<-18&&lon>-72&&lon<-65) return 1;                      // Atacama
+        if (lat>32&&lat<35&&lon>76&&lon<80&&pop<5000) return 2;                // Ladakh/Hanle
+        if (lat>31&&lat<33&&lon>77&&lon<79&&pop<15000) return 2;               // Spiti Valley
         if (lat>-35&&lat<-20&&lon>140&&lon<150&&pop<5000) return 2;            // Australian outback
         if (lat>18&&lat<32&&lon>0&&lon<35&&pop<10000) return 2;                // Sahara
         if (lat>42&&lat<50&&lon>90&&lon<118&&pop<20000) return 2;              // Mongolian steppe
         if (lat>35&&lat<42&&lon>-115&&lon<-105&&pop<10000) return 2;           // US high desert
         if (absLat>55&&pop<5000) return 2;                                      // remote high lat
         if (absLat>45&&pop<20000) return 3;                                     // remote mid lat
+        // Population-based estimate
         if (pop === 0) return 3;
         if (pop < 1000) return 3;
-        if (pop < 5000) return 4;
-        if (pop < 20000) return 5;
-        if (pop < 100000) return 6;
-        if (pop < 500000) return 7;
-        if (pop < 2000000) return 8;
+        if (pop < 8000) return 4;
+        if (pop < 30000) return 5;
+        if (pop < 150000) return 6;
+        if (pop < 700000) return 7;
+        if (pop < 3000000) return 8;
         return 9;
       }
+
 
       // ── Astronomy Engine helpers ─────────────────────────────────────────
 

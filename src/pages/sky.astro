@@ -1,0 +1,430 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`Live Night Sky — ${SITE_TITLE}`}
+			description="An interactive real-time planetarium. Explore stars, constellations, planets, and deep-sky objects from your location."
+		/>
+		<style>
+			body { margin: 0; padding: 0; }
+			.sky-page { width: 100%; max-width: calc(100% - 2em); margin: auto; padding: 2em 1em 0; }
+			.sky-header { margin-bottom: 1rem; }
+			.sky-header h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; color: rgb(var(--black)); }
+			.sky-header p { font-size: 0.9rem; color: rgb(var(--gray)); margin: 0; line-height: 1.5; }
+			.sky-header p a { color: var(--accent); text-decoration: none; }
+			.sky-header p a:hover { text-decoration: underline; }
+
+			/* ── Prompt ───────────────────────────────────────────── */
+			#location-prompt {
+				width: 100%; height: 82vh; min-height: 500px;
+				border-radius: 8px; border: 1px solid rgba(var(--gray-light),1);
+				box-shadow: var(--box-shadow); margin-top: 1rem;
+				display: flex; flex-direction: column; align-items: center;
+				justify-content: center; gap: 1.2rem;
+				background: #020b18; text-align: center; padding: 2rem;
+			}
+			.prompt-icon { font-size: 3rem; line-height: 1; }
+			#location-prompt h2 { color: #e8eaf6; font-size: 1.3rem; margin: 0; }
+			#location-prompt p { color: #7986a8; font-size: 0.88rem; max-width: 360px; line-height: 1.6; margin: 0; }
+			.city-input-row { display: flex; gap: 0.5rem; width: 100%; max-width: 400px; }
+			#city-input {
+				flex: 1; padding: 0.6rem 0.9rem; border-radius: 4px;
+				border: 1px solid #2a3550; background: #0d1a2e; color: #e8eaf6;
+				font-size: 0.95rem; font-family: inherit; outline: none; transition: border-color 0.15s;
+			}
+			#city-input:focus { border-color: var(--accent); }
+			#city-input::placeholder { color: #3d4f6e; }
+			#btn-go {
+				background: var(--accent); color: white; border: none;
+				padding: 0.6rem 1.3rem; border-radius: 4px; font-size: 0.9rem;
+				font-family: inherit; cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
+			}
+			#btn-go:hover { opacity: 0.85; }
+			#btn-go:disabled { opacity: 0.5; cursor: not-allowed; }
+			#location-status { font-size: 0.82rem; color: #556080; min-height: 1.2em; }
+			#location-status.error { color: #e05555; }
+			#location-status.success { color: #5a9e6f; }
+
+			/* ── Iframe wrapper ───────────────────────────────────── */
+			.sky-frame-wrap {
+				width: 100%; height: 82vh; min-height: 500px;
+				border-radius: 8px; overflow: hidden;
+				border: 1px solid rgba(var(--gray-light),1);
+				box-shadow: var(--box-shadow); margin-top: 1rem;
+				position: relative; display: none;
+			}
+			.sky-frame-wrap iframe {
+				position: absolute; top: 0; left: -315px;
+				width: calc(100% + 315px); height: 100%;
+				border: none; display: block;
+			}
+
+			/* ── Visible Tonight panel ────────────────────────────── */
+			#visible-panel {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				/* wide enough to fully cover the cookie banner (~390px) */
+				width: 480px;
+				height: 160px;
+				background: rgba(8, 12, 24, 0.98);
+				border-top: 1px solid rgba(255,255,255,0.1);
+				border-right: 1px solid rgba(255,255,255,0.08);
+				border-top-right-radius: 10px;
+				z-index: 10;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+			}
+
+			.vp-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0.45rem 1rem 0.35rem;
+				border-bottom: 1px solid rgba(255,255,255,0.06);
+				flex-shrink: 0;
+			}
+			.vp-title {
+				font-size: 0.58rem;
+				font-weight: 700;
+				letter-spacing: 0.18em;
+				text-transform: uppercase;
+				color: rgba(255,255,255,0.28);
+			}
+			.vp-location {
+				font-size: 0.62rem;
+				color: rgba(255,255,255,0.38);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 240px;
+			}
+
+			/* 4 items, each takes exactly 1/4 width */
+			.vp-items {
+				display: grid;
+				grid-template-columns: repeat(4, 1fr);
+				flex: 1;
+				overflow: hidden;
+			}
+
+			.vp-item {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 0.6rem;
+				padding: 0.55rem 0.7rem;
+				border-right: 1px solid rgba(255,255,255,0.05);
+				overflow: hidden;
+			}
+			.vp-item:last-child { border-right: none; }
+
+			.vp-thumb {
+				width: 44px;
+				height: 44px;
+				border-radius: 6px;
+				object-fit: cover;
+				flex-shrink: 0;
+				background: #0d1a2e;
+				border: 1px solid rgba(255,255,255,0.08);
+			}
+
+			.vp-info {
+				display: flex;
+				flex-direction: column;
+				gap: 0.15rem;
+				overflow: hidden;
+				min-width: 0;
+			}
+			.vp-name {
+				font-size: 0.72rem;
+				font-weight: 600;
+				color: rgba(255,255,255,0.85);
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.vp-type {
+				font-size: 0.6rem;
+				color: rgba(255,255,255,0.32);
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.vp-alt {
+				font-size: 0.62rem;
+				color: rgba(100,200,255,0.65);
+				font-family: monospace;
+			}
+
+			.vp-loading {
+				grid-column: 1 / -1;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 0.75rem;
+				color: rgba(255,255,255,0.2);
+			}
+
+			/* ── Time tip ─────────────────────────────────────────── */
+			#time-tip {
+				display: none; align-items: center; gap: 0.6rem;
+				background: rgba(255,193,60,0.12); border: 1px solid rgba(255,193,60,0.3);
+				border-radius: 6px; padding: 0.55rem 1rem; margin-top: 0.75rem;
+				font-size: 0.82rem; color: rgb(var(--gray-dark)); line-height: 1.5;
+			}
+			#time-tip.visible { display: flex; }
+			.tip-icon { font-size: 1.1rem; flex-shrink: 0; }
+			#dismiss-tip {
+				margin-left: auto; background: none; border: none;
+				cursor: pointer; color: rgb(var(--gray)); font-size: 1rem; line-height: 1;
+			}
+			#dismiss-tip:hover { color: rgb(var(--black)); }
+
+			.sky-footer-note {
+				font-size: 0.75rem; color: rgb(var(--gray));
+				text-align: center; padding: 0.75rem 0 2rem;
+			}
+			.sky-footer-note a { color: var(--accent); text-decoration: none; }
+			.sky-footer-note a:hover { text-decoration: underline; }
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main class="sky-page">
+			<div class="sky-header">
+				<h1>🔭 Live Night Sky</h1>
+				<p>
+					Real-time planetarium powered by <a href="https://stellarium-web.org" target="_blank" rel="noopener">Stellarium Web</a>.
+					Drag to pan, scroll to zoom, click any object to identify it.
+				</p>
+			</div>
+
+			<div id="location-prompt">
+				<div class="prompt-icon">🌍</div>
+				<h2>Where are you observing from?</h2>
+				<p>Enter your city and we'll open the sky map and show what's visible tonight.</p>
+				<div class="city-input-row">
+					<input id="city-input" type="text" placeholder="e.g. Indore, Tokyo, New York…" autocomplete="off" spellcheck="false" />
+					<button id="btn-go">Open Sky →</button>
+				</div>
+				<span id="location-status"></span>
+			</div>
+
+			<div class="sky-frame-wrap" id="sky-frame-wrap">
+				<iframe id="stellarium-frame" title="Stellarium Live Planetarium" allowfullscreen></iframe>
+
+				<div id="visible-panel">
+					<div class="vp-header">
+						<span class="vp-title">Visible Tonight</span>
+						<span class="vp-location" id="vp-location"></span>
+					</div>
+					<div class="vp-items" id="vp-items">
+						<div class="vp-loading">Calculating…</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="time-tip">
+				<span class="tip-icon">🕐</span>
+				<span>
+					If the time looks off, click the <strong>clock in the bottom-right corner</strong> of the sky view,
+					then hit the <strong>↺ return to now</strong> button to sync it to your current time.
+				</span>
+				<button id="dismiss-tip" title="Dismiss">✕</button>
+			</div>
+
+			<p class="sky-footer-note">
+				Powered by <a href="https://stellarium-web.org" target="_blank" rel="noopener">Stellarium Web</a>
+				— open source planetarium software.
+			</p>
+		</main>
+		<Footer />
+
+		<script>
+			// ── Object catalogue with reliable Wikimedia full-res URLs ──────
+			const CATALOGUE = [
+				{ name:'Moon',             type:'Satellite',       isMoon:true,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg' },
+				{ name:'Saturn',           type:'Planet',          isPlanet:true, pIdx:5,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg' },
+				{ name:'Jupiter',          type:'Planet',          isPlanet:true, pIdx:4,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg' },
+				{ name:'Mars',             type:'Planet',          isPlanet:true, pIdx:3,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg' },
+				{ name:'Venus',            type:'Planet',          isPlanet:true, pIdx:2,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg' },
+				{ name:'Orion Nebula',     type:'Emission Nebula', ra:83.82,  dec:-5.39,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg' },
+				{ name:'Pleiades',         type:'Open Cluster',    ra:56.75,  dec:24.12,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/4/4e/Pleiades_large.jpg' },
+				{ name:'Andromeda',        type:'Galaxy',          ra:10.68,  dec:41.27,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg' },
+				{ name:'Hercules Cluster', type:'Globular Cluster',ra:250.42, dec:36.46,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/b/bc/Messier_13_Hubble_WikiSky.jpg' },
+				{ name:'Ring Nebula',      type:'Planetary Nebula',ra:283.40, dec:33.03,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/1/1d/Ring_Nebula.jpg' },
+				{ name:'Lagoon Nebula',    type:'Emission Nebula', ra:270.92, dec:-24.38,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/7/7e/Lagoon_Nebula_ESO.jpg' },
+				{ name:'Omega Centauri',   type:'Globular Cluster',ra:201.70, dec:-47.48,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/7/7f/Omega_Centauri_by_ESO.jpg' },
+				{ name:'Whirlpool Galaxy', type:'Galaxy',          ra:202.47, dec:47.20,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/d/db/Messier51_sRGB.jpg' },
+				{ name:'Sirius',           type:'Star',            ra:101.29, dec:-16.72,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/0/00/Sirius_A_and_B_Hubble_photo.jpg' },
+				{ name:'Vega',             type:'Star',            ra:279.23, dec:38.78,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/b/b3/Vega_and_its_Debris_Disk.jpg' },
+				{ name:'Crab Nebula',      type:'Supernova Remnant',ra:83.63, dec:22.01,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/0/00/Crab_Nebula.jpg' },
+				{ name:'Eta Carinae',      type:'Nebula',          ra:161.26, dec:-59.68,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/e/e9/Carina_Nebula_by_Harel_Boren_%28151932528%2C_modified%29.jpg' },
+				{ name:'LMC',              type:'Satellite Galaxy',ra:80.89,  dec:-69.75,
+				  img:'https://upload.wikimedia.org/wikipedia/commons/9/9f/Large.Magellanic.Cloud.jpg' },
+			];
+
+			const toRad = (d: number) => d * Math.PI / 180;
+			const toDeg = (r: number) => r * 180 / Math.PI;
+			const jd    = (d: Date)   => d.getTime() / 86400000 + 2440587.5;
+
+			function lst(julianDay: number, lon: number) {
+				const T = (julianDay - 2451545.0) / 36525;
+				return ((280.46061837 + 360.98564736629 * (julianDay - 2451545) + 0.000387933 * T * T) + lon + 360) % 360;
+			}
+
+			function alt(ra: number, dec: number, LST: number, lat: number) {
+				const ha = toRad(LST - ra);
+				return toDeg(Math.asin(
+					Math.max(-1, Math.min(1,
+						Math.sin(toRad(lat)) * Math.sin(toRad(dec)) +
+						Math.cos(toRad(lat)) * Math.cos(toRad(dec)) * Math.cos(ha)
+					))
+				));
+			}
+
+			function moonPos(julianDay: number) {
+				const n   = julianDay - 2451545.0;
+				const L   = toRad((218.316 + 13.176396 * n) % 360);
+				const M   = toRad((134.963 + 13.064993 * n) % 360);
+				const lam = L + toRad(6.289 * Math.sin(M));
+				const eps = toRad(23.439);
+				return {
+					ra:  (toDeg(Math.atan2(Math.sin(lam) * Math.cos(eps), Math.cos(lam))) + 360) % 360,
+					dec: toDeg(Math.asin(Math.sin(lam) * Math.sin(eps)))
+				};
+			}
+
+			function planetPos(pIdx: number, julianDay: number) {
+				const n  = julianDay - 2451545.0;
+				const el = [[181.97,1.6021302],[355.43,0.5240207],[34.40,0.0831294],[50.08,0.0334429]];
+				const [L0, rate] = el[pIdx - 2];
+				const L   = toRad((L0 + rate * n) % 360);
+				const sun = toRad((100.46 + 0.9856474 * n) % 360) + Math.PI;
+				const lam = L + sun;
+				const eps = toRad(23.439);
+				return {
+					ra:  (toDeg(Math.atan2(Math.sin(lam) * Math.cos(eps), Math.cos(lam))) + 360) % 360,
+					dec: toDeg(Math.asin(Math.sin(lam) * Math.sin(eps)))
+				};
+			}
+
+			function computeVisible(lat: number, lng: number) {
+				const now   = new Date();
+				const J     = jd(now);
+				const LST   = lst(J, lng);
+
+				return CATALOGUE
+					.map(obj => {
+						let ra  = (obj as any).ra  ?? 0;
+						let dec = (obj as any).dec ?? 0;
+						if ((obj as any).isMoon)   { ({ ra, dec } = moonPos(J)); }
+						if ((obj as any).isPlanet) { ({ ra, dec } = planetPos((obj as any).pIdx, J)); }
+						return { ...obj, altitude: alt(ra, dec, LST, lat) };
+					})
+					.filter(o => o.altitude > 15)
+					.sort((a, b) => b.altitude - a.altitude)
+					.slice(0, 4);  // top 4 only
+			}
+
+			function renderPanel(objects: any[], cityName: string) {
+				document.getElementById('vp-location')!.textContent = cityName;
+				const items = document.getElementById('vp-items')!;
+				if (!objects.length) {
+					items.innerHTML = `<div class="vp-loading">Nothing notable above horizon right now.</div>`;
+					return;
+				}
+				items.innerHTML = objects.map(o => `
+					<div class="vp-item">
+						<img class="vp-thumb" src="${o.img}" alt="${o.name}"
+							onerror="this.style.opacity='0.2'" loading="lazy" />
+						<div class="vp-info">
+							<div class="vp-name">${o.name}</div>
+							<div class="vp-type">${o.type}</div>
+							<div class="vp-alt">${o.altitude.toFixed(0)}° alt</div>
+						</div>
+					</div>
+				`).join('');
+			}
+
+			// ── wiring ─────────────────────────────────────────────────────
+			const promptEl   = document.getElementById('location-prompt')!;
+			const frameWrap  = document.getElementById('sky-frame-wrap')!;
+			const frame      = document.getElementById('stellarium-frame') as HTMLIFrameElement;
+			const cityInput  = document.getElementById('city-input') as HTMLInputElement;
+			const btnGo      = document.getElementById('btn-go') as HTMLButtonElement;
+			const statusEl   = document.getElementById('location-status')!;
+			const timeTip    = document.getElementById('time-tip')!;
+
+			document.getElementById('dismiss-tip')!
+				.addEventListener('click', () => timeTip.classList.remove('visible'));
+
+			function launch(lat: number, lng: number, name: string) {
+				frame.src = `https://stellarium-web.org/?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`;
+				promptEl.style.display  = 'none';
+				frameWrap.style.display = 'block';
+				renderPanel(computeVisible(lat, lng), name);
+				setTimeout(() => timeTip.classList.add('visible'), 3000);
+			}
+
+			async function geocode(city: string) {
+				const res  = await fetch(
+					`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`,
+					{ headers: { 'Accept-Language': 'en', 'User-Agent': 'BackyardAstrophysicist/1.0' } }
+				);
+				const data = await res.json();
+				if (!data.length) throw new Error('not found');
+				const parts = (data[0].display_name as string).split(',');
+				return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), name: parts.slice(0, 2).join(', ').trim() };
+			}
+
+			async function submit() {
+				const city = cityInput.value.trim();
+				if (!city) { cityInput.focus(); return; }
+				btnGo.disabled = true;
+				statusEl.className = '';
+				statusEl.textContent = 'Looking up location…';
+				try {
+					const { lat, lng, name } = await geocode(city);
+					statusEl.className = 'success';
+					statusEl.textContent = `Found: ${name} — loading sky…`;
+					setTimeout(() => launch(lat, lng, name), 600);
+				} catch {
+					statusEl.className = 'error';
+					statusEl.textContent = 'City not found. Try a different name.';
+					btnGo.disabled = false;
+				}
+			}
+
+			btnGo.addEventListener('click', submit);
+			cityInput.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+			cityInput.focus();
+		</script>
+	</body>
+</html>
