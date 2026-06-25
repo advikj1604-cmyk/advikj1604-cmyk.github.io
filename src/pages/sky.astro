@@ -20,6 +20,12 @@ import { SITE_TITLE } from '../consts';
 			.sky-header p { font-size: 0.9rem; color: rgb(var(--gray)); margin: 0; line-height: 1.5; }
 			.sky-header p a { color: var(--accent); text-decoration: none; }
 			.sky-header p a:hover { text-decoration: underline; }
+			.sky-header-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+			#btn-change {
+				display: none; font-size: 0.78rem; color: var(--accent);
+				background: none; border: none; cursor: pointer; font-family: inherit; padding: 0;
+			}
+			#btn-change:hover { text-decoration: underline; }
 
 			/* ── Prompt ───────────────────────────────────────────── */
 			#location-prompt {
@@ -201,7 +207,10 @@ import { SITE_TITLE } from '../consts';
 		<Header />
 		<main class="sky-page">
 			<div class="sky-header">
-				<h1>🔭 Live Night Sky</h1>
+				<div class="sky-header-row">
+					<h1 style="margin:0">🔭 Live Night Sky</h1>
+					<button id="btn-change">← Change location</button>
+				</div>
 				<p>
 					Real-time planetarium powered by <a href="https://stellarium-web.org" target="_blank" rel="noopener">Stellarium Web</a>.
 					Drag to pan, scroll to zoom, click any object to identify it.
@@ -385,10 +394,29 @@ import { SITE_TITLE } from '../consts';
 			document.getElementById('dismiss-tip')!
 				.addEventListener('click', () => timeTip.classList.remove('visible'));
 
+			const btnChange = document.getElementById('btn-change') as HTMLButtonElement;
+
+			function reset() {
+				frameWrap.style.display = 'none';
+				promptEl.style.display  = 'flex';
+				btnChange.style.display = 'none';
+				timeTip.classList.remove('visible');
+				frame.src = '';
+				cityInput.value = '';
+				statusEl.textContent = '';
+				statusEl.className = '';
+				btnGo.disabled = false;
+				document.getElementById('vp-items')!.innerHTML = '<div class="vp-loading">Calculating…</div>';
+				setTimeout(() => cityInput.focus(), 50);
+			}
+
+			btnChange.addEventListener('click', reset);
+
 			function launch(lat: number, lng: number, name: string) {
 				frame.src = `https://stellarium-web.org/?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`;
 				promptEl.style.display  = 'none';
 				frameWrap.style.display = 'block';
+				btnChange.style.display = 'block';
 				renderPanel(computeVisible(lat, lng), name);
 				setTimeout(() => timeTip.classList.add('visible'), 3000);
 			}
