@@ -12,6 +12,8 @@ import { SITE_TITLE } from '../consts';
 			title={`Live Night Sky — ${SITE_TITLE}`}
 			description="An interactive real-time planetarium. Explore stars, constellations, planets, and deep-sky objects from your location."
 		/>
+		<!-- Astronomy Engine: same accurate engine used on the Tonight's Sky page -->
+		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.js" is:inline></script>
 		<style>
 			body { margin: 0; padding: 0; }
 			.sky-page { width: 100%; max-width: calc(100% - 2em); margin: auto; padding: 2em 1em 0; }
@@ -27,7 +29,6 @@ import { SITE_TITLE } from '../consts';
 			}
 			#btn-change:hover { text-decoration: underline; }
 
-			/* ── Prompt ───────────────────────────────────────────── */
 			#location-prompt {
 				width: 100%; height: 82vh; min-height: 500px;
 				border-radius: 8px; border: 1px solid rgba(var(--gray-light),1);
@@ -58,7 +59,6 @@ import { SITE_TITLE } from '../consts';
 			#location-status.error { color: #e05555; }
 			#location-status.success { color: #5a9e6f; }
 
-			/* ── Iframe wrapper ───────────────────────────────────── */
 			.sky-frame-wrap {
 				width: 100%; height: 82vh; min-height: 500px;
 				border-radius: 8px; overflow: hidden;
@@ -72,115 +72,53 @@ import { SITE_TITLE } from '../consts';
 				border: none; display: block;
 			}
 
-			/* ── Visible Tonight panel ────────────────────────────── */
 			#visible-panel {
-				position: absolute;
-				bottom: 0;
-				left: 0;
-				/* wide enough to fully cover the cookie banner (~390px) */
-				width: 480px;
-				height: 160px;
+				position: absolute; bottom: 0; left: 0;
+				width: 480px; height: 160px;
 				background: rgba(8, 12, 24, 0.98);
 				border-top: 1px solid rgba(255,255,255,0.1);
 				border-right: 1px solid rgba(255,255,255,0.08);
 				border-top-right-radius: 10px;
-				z-index: 10;
-				display: flex;
-				flex-direction: column;
-				overflow: hidden;
+				z-index: 10; display: flex; flex-direction: column; overflow: hidden;
 			}
-
 			.vp-header {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
+				display: flex; align-items: center; justify-content: space-between;
 				padding: 0.45rem 1rem 0.35rem;
-				border-bottom: 1px solid rgba(255,255,255,0.06);
-				flex-shrink: 0;
+				border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
 			}
 			.vp-title {
-				font-size: 0.58rem;
-				font-weight: 700;
-				letter-spacing: 0.18em;
-				text-transform: uppercase;
-				color: rgba(255,255,255,0.28);
+				font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em;
+				text-transform: uppercase; color: rgba(255,255,255,0.28);
 			}
 			.vp-location {
-				font-size: 0.62rem;
-				color: rgba(255,255,255,0.38);
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-				max-width: 240px;
+				font-size: 0.62rem; color: rgba(255,255,255,0.38);
+				overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px;
 			}
-
-			/* 4 items, each takes exactly 1/4 width */
-			.vp-items {
-				display: grid;
-				grid-template-columns: repeat(4, 1fr);
-				flex: 1;
-				overflow: hidden;
-			}
-
+			.vp-items { display: grid; grid-template-columns: repeat(4, 1fr); flex: 1; overflow: hidden; }
 			.vp-item {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				gap: 0.6rem;
-				padding: 0.55rem 0.7rem;
-				border-right: 1px solid rgba(255,255,255,0.05);
-				overflow: hidden;
+				display: flex; flex-direction: row; align-items: center; gap: 0.6rem;
+				padding: 0.55rem 0.7rem; border-right: 1px solid rgba(255,255,255,0.05); overflow: hidden;
 			}
 			.vp-item:last-child { border-right: none; }
-
 			.vp-thumb {
-				width: 44px;
-				height: 44px;
-				border-radius: 6px;
-				object-fit: cover;
-				flex-shrink: 0;
-				background: #0d1a2e;
-				border: 1px solid rgba(255,255,255,0.08);
+				width: 44px; height: 44px; border-radius: 6px; object-fit: cover;
+				flex-shrink: 0; background: #0d1a2e; border: 1px solid rgba(255,255,255,0.08);
 			}
-
-			.vp-info {
-				display: flex;
-				flex-direction: column;
-				gap: 0.15rem;
-				overflow: hidden;
-				min-width: 0;
-			}
+			.vp-info { display: flex; flex-direction: column; gap: 0.15rem; overflow: hidden; min-width: 0; }
 			.vp-name {
-				font-size: 0.72rem;
-				font-weight: 600;
-				color: rgba(255,255,255,0.85);
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
+				font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.85);
+				white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 			}
 			.vp-type {
-				font-size: 0.6rem;
-				color: rgba(255,255,255,0.32);
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
+				font-size: 0.6rem; color: rgba(255,255,255,0.32);
+				white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 			}
-			.vp-alt {
-				font-size: 0.62rem;
-				color: rgba(100,200,255,0.65);
-				font-family: monospace;
-			}
-
+			.vp-alt { font-size: 0.62rem; color: rgba(100,200,255,0.65); font-family: monospace; }
 			.vp-loading {
-				grid-column: 1 / -1;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 0.75rem;
-				color: rgba(255,255,255,0.2);
+				grid-column: 1 / -1; display: flex; align-items: center; justify-content: center;
+				font-size: 0.75rem; color: rgba(255,255,255,0.2);
 			}
 
-			/* ── Time tip ─────────────────────────────────────────── */
 			#time-tip {
 				display: none; align-items: center; gap: 0.6rem;
 				background: rgba(255,193,60,0.12); border: 1px solid rgba(255,193,60,0.3);
@@ -195,10 +133,7 @@ import { SITE_TITLE } from '../consts';
 			}
 			#dismiss-tip:hover { color: rgb(var(--black)); }
 
-			.sky-footer-note {
-				font-size: 0.75rem; color: rgb(var(--gray));
-				text-align: center; padding: 0.75rem 0 2rem;
-			}
+			.sky-footer-note { font-size: 0.75rem; color: rgb(var(--gray)); text-align: center; padding: 0.75rem 0 2rem; }
 			.sky-footer-note a { color: var(--accent); text-decoration: none; }
 			.sky-footer-note a:hover { text-decoration: underline; }
 		</style>
@@ -258,145 +193,161 @@ import { SITE_TITLE } from '../consts';
 		</main>
 		<Footer />
 
-		<script>
-			// ── Object catalogue with reliable Wikimedia full-res URLs ──────
-			const CATALOGUE = [
-				{ name:'Moon',             type:'Satellite',       isMoon:true,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg' },
-				{ name:'Saturn',           type:'Planet',          isPlanet:true, pIdx:5,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg' },
-				{ name:'Jupiter',          type:'Planet',          isPlanet:true, pIdx:4,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg' },
-				{ name:'Mars',             type:'Planet',          isPlanet:true, pIdx:3,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg' },
-				{ name:'Venus',            type:'Planet',          isPlanet:true, pIdx:2,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg' },
-				{ name:'Orion Nebula',     type:'Emission Nebula', ra:83.82,  dec:-5.39,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg' },
-				{ name:'Pleiades',         type:'Open Cluster',    ra:56.75,  dec:24.12,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/4/4e/Pleiades_large.jpg' },
-				{ name:'Andromeda',        type:'Galaxy',          ra:10.68,  dec:41.27,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg' },
-				{ name:'Hercules Cluster', type:'Globular Cluster',ra:250.42, dec:36.46,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/b/bc/Messier_13_Hubble_WikiSky.jpg' },
-				{ name:'Ring Nebula',      type:'Planetary Nebula',ra:283.40, dec:33.03,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/1/1d/Ring_Nebula.jpg' },
-				{ name:'Lagoon Nebula',    type:'Emission Nebula', ra:270.92, dec:-24.38,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/7/7e/Lagoon_Nebula_ESO.jpg' },
-				{ name:'Omega Centauri',   type:'Globular Cluster',ra:201.70, dec:-47.48,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/7/7f/Omega_Centauri_by_ESO.jpg' },
-				{ name:'Whirlpool Galaxy', type:'Galaxy',          ra:202.47, dec:47.20,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/d/db/Messier51_sRGB.jpg' },
-				{ name:'Sirius',           type:'Star',            ra:101.29, dec:-16.72,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/0/00/Sirius_A_and_B_Hubble_photo.jpg' },
-				{ name:'Vega',             type:'Star',            ra:279.23, dec:38.78,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/b/b3/Vega_and_its_Debris_Disk.jpg' },
-				{ name:'Crab Nebula',      type:'Supernova Remnant',ra:83.63, dec:22.01,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/0/00/Crab_Nebula.jpg' },
-				{ name:'Eta Carinae',      type:'Nebula',          ra:161.26, dec:-59.68,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/e/e9/Carina_Nebula_by_Harel_Boren_%28151932528%2C_modified%29.jpg' },
-				{ name:'LMC',              type:'Satellite Galaxy',ra:80.89,  dec:-69.75,
-				  img:'https://upload.wikimedia.org/wikipedia/commons/9/9f/Large.Magellanic.Cloud.jpg' },
+		<script is:inline>
+		(function () {
+			// naked:true means visible to the unaided eye under reasonably
+			// dark skies. Deep-sky objects that truly need binoculars or a
+			// telescope (galaxies, faint nebulae, globular clusters) are
+			// marked naked:false and excluded from this panel.
+			var CATALOGUE = [
+				{ name:'Moon', type:'Satellite', body:'Moon', img:'/sky/moon.jpg', naked:true },
+				{ name:'Saturn', type:'Planet', body:'Saturn', img:'/sky/saturn.jpg', naked:true },
+				{ name:'Jupiter', type:'Planet', body:'Jupiter', img:'/sky/jupiter.jpg', naked:true },
+				{ name:'Mars', type:'Planet', body:'Mars', img:'/sky/mars.jpg', naked:true },
+				{ name:'Venus', type:'Planet', body:'Venus', img:'/sky/venus.jpg', naked:true },
+				{ name:'Mercury', type:'Planet', body:'Mercury', img:'/sky/mercury.jpg', naked:true },
+				{ name:'Sirius', type:'Star', ra:6.7525, dec:-16.7161, img:'/sky/sirius.jpg', naked:true },
+				{ name:'Orion Constellation', type:'Constellation', ra:5.9195, dec:7.4070, img:'/sky/orion-constellation.jpg', naked:true },
+				{ name:'Pleiades', type:'Open Cluster', ra:3.7913, dec:24.1133, img:'/sky/pleiades.jpg', naked:true },
+				{ name:'Orion Nebula', type:'Emission Nebula', ra:5.5880, dec:-5.3911, img:'/sky/orion-nebula.jpg', naked:false },
+				{ name:'Andromeda Galaxy', type:'Galaxy', ra:0.7122, dec:41.2692, img:'/sky/andromeda.jpg', naked:false },
+				{ name:'Ring Nebula', type:'Planetary Nebula', ra:18.8932, dec:33.0292, img:'/sky/ring-nebula.jpg', naked:false },
+				{ name:'Whirlpool Galaxy', type:'Galaxy', ra:13.4979, dec:47.1953, img:'/sky/whirlpool.jpg', naked:false },
+				{ name:'Crab Nebula', type:'Supernova Remnant', ra:5.5755, dec:22.0145, img:'/sky/crab-nebula.jpg', naked:false },
+				{ name:'Lagoon Nebula', type:'Emission Nebula', ra:18.0603, dec:-24.3833, img:'/sky/lagoon-nebula.jpg', naked:false },
+				{ name:'Omega Centauri', type:'Globular Cluster', ra:13.4464, dec:-47.4769, img:'/sky/omega-centauri.jpg', naked:false },
+				{ name:'Sombrero Galaxy', type:'Galaxy', ra:12.6661, dec:-11.6231, img:'/sky/sombrero.jpg', naked:false },
+				{ name:'Eta Carinae Nebula', type:'Emission Nebula', ra:10.7522, dec:-59.8678, img:'/sky/eta-carinae.jpg', naked:false },
 			];
 
-			const toRad = (d: number) => d * Math.PI / 180;
-			const toDeg = (r: number) => r * 180 / Math.PI;
-			const jd    = (d: Date)   => d.getTime() / 86400000 + 2440587.5;
-
-			function lst(julianDay: number, lon: number) {
-				const T = (julianDay - 2451545.0) / 36525;
-				return ((280.46061837 + 360.98564736629 * (julianDay - 2451545) + 0.000387933 * T * T) + lon + 360) % 360;
+			function computeAltitude(obj, Astro, observer, now) {
+				var altitude = -99;
+				try {
+					if (obj.body) {
+						var eq = Astro.Equator(Astro.Body[obj.body], now, observer, true, true);
+						altitude = Astro.Horizon(now, observer, eq.ra, eq.dec, 'normal').altitude;
+					} else {
+						altitude = Astro.Horizon(now, observer, obj.ra, obj.dec, 'normal').altitude;
+					}
+				} catch (e) { console.warn('alt calc failed for', obj.name, e); }
+				return altitude;
 			}
 
-			function alt(ra: number, dec: number, LST: number, lat: number) {
-				const ha = toRad(LST - ra);
-				return toDeg(Math.asin(
-					Math.max(-1, Math.min(1,
-						Math.sin(toRad(lat)) * Math.sin(toRad(dec)) +
-						Math.cos(toRad(lat)) * Math.cos(toRad(dec)) * Math.cos(ha)
-					))
-				));
+			// Priority order: naked-eye objects that are above the horizon
+			// come first. Only if fewer than 4 of those are up do we fall
+			// back and fill the remaining slots with binocular/telescope
+			// objects, also sorted by altitude (highest = best placed).
+			function computeVisible(lat, lng) {
+				var Astro = window.Astronomy;
+				if (!Astro) { console.warn('Astronomy Engine not loaded'); return []; }
+				var observer = new Astro.Observer(lat, lng, 0);
+				var now = new Date();
+
+				var withAlt = CATALOGUE.map(function (obj) {
+					return {
+						name: obj.name,
+						type: obj.type,
+						img: obj.img,
+						naked: obj.naked === true,
+						altitude: computeAltitude(obj, Astro, observer, now),
+					};
+				});
+
+				var aboveHorizon = withAlt.filter(function (o) { return o.altitude > 15; });
+
+				var nakedUp = aboveHorizon
+					.filter(function (o) { return o.naked; })
+					.sort(function (a, b) { return b.altitude - a.altitude; });
+
+				if (nakedUp.length >= 4) {
+					return nakedUp.slice(0, 4);
+				}
+
+				var othersUp = aboveHorizon
+					.filter(function (o) { return !o.naked; })
+					.sort(function (a, b) { return b.altitude - a.altitude; });
+
+				return nakedUp.concat(othersUp).slice(0, 4);
 			}
 
-			function moonPos(julianDay: number) {
-				const n   = julianDay - 2451545.0;
-				const L   = toRad((218.316 + 13.176396 * n) % 360);
-				const M   = toRad((134.963 + 13.064993 * n) % 360);
-				const lam = L + toRad(6.289 * Math.sin(M));
-				const eps = toRad(23.439);
-				return {
-					ra:  (toDeg(Math.atan2(Math.sin(lam) * Math.cos(eps), Math.cos(lam))) + 360) % 360,
-					dec: toDeg(Math.asin(Math.sin(lam) * Math.sin(eps)))
-				};
-			}
-
-			function planetPos(pIdx: number, julianDay: number) {
-				const n  = julianDay - 2451545.0;
-				const el = [[181.97,1.6021302],[355.43,0.5240207],[34.40,0.0831294],[50.08,0.0334429]];
-				const [L0, rate] = el[pIdx - 2];
-				const L   = toRad((L0 + rate * n) % 360);
-				const sun = toRad((100.46 + 0.9856474 * n) % 360) + Math.PI;
-				const lam = L + sun;
-				const eps = toRad(23.439);
-				return {
-					ra:  (toDeg(Math.atan2(Math.sin(lam) * Math.cos(eps), Math.cos(lam))) + 360) % 360,
-					dec: toDeg(Math.asin(Math.sin(lam) * Math.sin(eps)))
-				};
-			}
-
-			function computeVisible(lat: number, lng: number) {
-				const now   = new Date();
-				const J     = jd(now);
-				const LST   = lst(J, lng);
-
-				return CATALOGUE
-					.map(obj => {
-						let ra  = (obj as any).ra  ?? 0;
-						let dec = (obj as any).dec ?? 0;
-						if ((obj as any).isMoon)   { ({ ra, dec } = moonPos(J)); }
-						if ((obj as any).isPlanet) { ({ ra, dec } = planetPos((obj as any).pIdx, J)); }
-						return { ...obj, altitude: alt(ra, dec, LST, lat) };
-					})
-					.filter(o => o.altitude > 15)
-					.sort((a, b) => b.altitude - a.altitude)
-					.slice(0, 4);  // top 4 only
-			}
-
-			function renderPanel(objects: any[], cityName: string) {
-				document.getElementById('vp-location')!.textContent = cityName;
-				const items = document.getElementById('vp-items')!;
+			function renderPanel(objects, cityName) {
+				var loc = document.getElementById('vp-location');
+				var items = document.getElementById('vp-items');
+				if (!loc || !items) return;
+				loc.textContent = cityName;
 				if (!objects.length) {
-					items.innerHTML = `<div class="vp-loading">Nothing notable above horizon right now.</div>`;
+					items.innerHTML = '<div class="vp-loading">Nothing notable above horizon right now.</div>';
 					return;
 				}
-				items.innerHTML = objects.map(o => `
-					<div class="vp-item">
-						<img class="vp-thumb" src="${o.img}" alt="${o.name}"
-							onerror="this.style.opacity='0.2'" loading="lazy" />
-						<div class="vp-info">
-							<div class="vp-name">${o.name}</div>
-							<div class="vp-type">${o.type}</div>
-							<div class="vp-alt">${o.altitude.toFixed(0)}° alt</div>
-						</div>
-					</div>
-				`).join('');
+				items.innerHTML = objects.map(function (o) {
+					return '<div class="vp-item">' +
+							'<img class="vp-thumb" src="' + o.img + '" alt="' + o.name + '" ' +
+								'width="44" height="44" ' +
+								'onerror="this.style.opacity=\'0.15\'" loading="lazy" />' +
+							'<div class="vp-info">' +
+								'<div class="vp-name">' + o.name + '</div>' +
+								'<div class="vp-type">' + o.type + '</div>' +
+								'<div class="vp-alt">' + o.altitude.toFixed(0) + '\u00b0 alt</div>' +
+							'</div>' +
+						'</div>';
+				}).join('');
 			}
 
-			// ── wiring ─────────────────────────────────────────────────────
-			const promptEl   = document.getElementById('location-prompt')!;
-			const frameWrap  = document.getElementById('sky-frame-wrap')!;
-			const frame      = document.getElementById('stellarium-frame') as HTMLIFrameElement;
-			const cityInput  = document.getElementById('city-input') as HTMLInputElement;
-			const btnGo      = document.getElementById('btn-go') as HTMLButtonElement;
-			const statusEl   = document.getElementById('location-status')!;
-			const timeTip    = document.getElementById('time-tip')!;
+			function waitForAstro(cb, tries) {
+				tries = tries || 0;
+				if (window.Astronomy) { cb(); return; }
+				if (tries > 50) {
+					console.error('Astronomy Engine failed to load after 5s');
+					var items = document.getElementById('vp-items');
+					if (items) {
+						items.innerHTML = '<div class="vp-loading">Could not load sky data. Try refreshing.</div>';
+					}
+					return;
+				}
+				setTimeout(function () { waitForAstro(cb, tries + 1); }, 100);
+			}
 
-			document.getElementById('dismiss-tip')!
-				.addEventListener('click', () => timeTip.classList.remove('visible'));
+			function geocode(city) {
+				return fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(city) + '&count=1&language=en&format=json')
+					.then(function (res) { return res.json(); })
+					.then(function (data) {
+						if (!data.results || !data.results.length) throw new Error('not found');
+						var r = data.results[0];
+						var name = r.name + (r.country ? ', ' + r.country : '');
+						return { lat: r.latitude, lng: r.longitude, name: name };
+					});
+			}
 
-			const btnChange = document.getElementById('btn-change') as HTMLButtonElement;
+			function launch(lat, lng, name) {
+				var frame = document.getElementById('stellarium-frame');
+				var promptEl = document.getElementById('location-prompt');
+				var frameWrap = document.getElementById('sky-frame-wrap');
+				var btnChange = document.getElementById('btn-change');
+				var timeTip = document.getElementById('time-tip');
+				if (!frame) { console.error('stellarium-frame not found'); return; }
 
-			function reset() {
+				frame.src = 'https://stellarium-web.org/?lat=' + lat.toFixed(5) + '&lng=' + lng.toFixed(5);
+				promptEl.style.display  = 'none';
+				frameWrap.style.display = 'block';
+				btnChange.style.display = 'block';
+				waitForAstro(function () {
+					renderPanel(computeVisible(lat, lng), name);
+				});
+				setTimeout(function () { timeTip.classList.add('visible'); }, 3000);
+			}
+
+			function resetSkyPage() {
+				var frame = document.getElementById('stellarium-frame');
+				var promptEl = document.getElementById('location-prompt');
+				var frameWrap = document.getElementById('sky-frame-wrap');
+				var btnChange = document.getElementById('btn-change');
+				var timeTip = document.getElementById('time-tip');
+				var cityInput = document.getElementById('city-input');
+				var statusEl = document.getElementById('location-status');
+				var btnGo = document.getElementById('btn-go');
+				var vpItems = document.getElementById('vp-items');
+				if (!promptEl) return;
+
 				frameWrap.style.display = 'none';
 				promptEl.style.display  = 'flex';
 				btnChange.style.display = 'none';
@@ -406,53 +357,68 @@ import { SITE_TITLE } from '../consts';
 				statusEl.textContent = '';
 				statusEl.className = '';
 				btnGo.disabled = false;
-				document.getElementById('vp-items')!.innerHTML = '<div class="vp-loading">Calculating…</div>';
-				setTimeout(() => cityInput.focus(), 50);
+				vpItems.innerHTML = '<div class="vp-loading">Calculating\u2026</div>';
 			}
 
-			btnChange.addEventListener('click', reset);
+			function submitCity() {
+				var cityInput = document.getElementById('city-input');
+				var btnGo = document.getElementById('btn-go');
+				var statusEl = document.getElementById('location-status');
+				if (!cityInput) return;
 
-			function launch(lat: number, lng: number, name: string) {
-				frame.src = `https://stellarium-web.org/?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`;
-				promptEl.style.display  = 'none';
-				frameWrap.style.display = 'block';
-				btnChange.style.display = 'block';
-				renderPanel(computeVisible(lat, lng), name);
-				setTimeout(() => timeTip.classList.add('visible'), 3000);
-			}
-
-			async function geocode(city: string) {
-				const res  = await fetch(
-					`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`,
-					{ headers: { 'Accept-Language': 'en', 'User-Agent': 'BackyardAstrophysicist/1.0' } }
-				);
-				const data = await res.json();
-				if (!data.length) throw new Error('not found');
-				const parts = (data[0].display_name as string).split(',');
-				return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), name: parts.slice(0, 2).join(', ').trim() };
-			}
-
-			async function submit() {
-				const city = cityInput.value.trim();
+				var city = cityInput.value.trim();
 				if (!city) { cityInput.focus(); return; }
 				btnGo.disabled = true;
 				statusEl.className = '';
-				statusEl.textContent = 'Looking up location…';
-				try {
-					const { lat, lng, name } = await geocode(city);
+				statusEl.textContent = 'Looking up location\u2026';
+
+				geocode(city).then(function (loc) {
 					statusEl.className = 'success';
-					statusEl.textContent = `Found: ${name} — loading sky…`;
-					setTimeout(() => launch(lat, lng, name), 600);
-				} catch {
+					statusEl.textContent = 'Found: ' + loc.name + ' \u2014 loading sky\u2026';
+					setTimeout(function () { launch(loc.lat, loc.lng, loc.name); }, 600);
+				}).catch(function (e) {
+					console.error('Geocode failed:', e);
 					statusEl.className = 'error';
 					statusEl.textContent = 'City not found. Try a different name.';
 					btnGo.disabled = false;
+				});
+			}
+
+			// ── Event delegation: bind once on document, survives every ────
+			// Astro view-transition body swap automatically. No re-binding,
+			// no node cloning, no stale references possible.
+			if (!window.__skyPageDelegated) {
+				window.__skyPageDelegated = true;
+
+				document.addEventListener('click', function (e) {
+					var target = e.target;
+					if (target && target.id === 'btn-go') { submitCity(); }
+					if (target && target.id === 'btn-change') { resetSkyPage(); }
+					if (target && target.id === 'dismiss-tip') {
+						var tip = document.getElementById('time-tip');
+						if (tip) tip.classList.remove('visible');
+					}
+				});
+
+				document.addEventListener('keydown', function (e) {
+					if (e.key === 'Enter' && e.target && e.target.id === 'city-input') {
+						submitCity();
+					}
+				});
+			}
+
+			// Reset to a clean prompt state every time this page is (re)entered.
+			function onEnterSkyPage() {
+				if (document.getElementById('location-prompt')) {
+					resetSkyPage();
+					var cityInput = document.getElementById('city-input');
+					if (cityInput) setTimeout(function () { cityInput.focus(); }, 50);
 				}
 			}
 
-			btnGo.addEventListener('click', submit);
-			cityInput.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
-			cityInput.focus();
+			onEnterSkyPage();
+			document.addEventListener('astro:page-load', onEnterSkyPage);
+		})();
 		</script>
 	</body>
 </html>
